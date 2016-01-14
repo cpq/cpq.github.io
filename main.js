@@ -25,24 +25,30 @@ $(document).ready(function() {
   };
 
   var get_chunk = function(repo, page, per_page, series, data, num_series) {
+    var onChunk = function(obj) {
+      if (obj.length < per_page) {
+        data.push({label: repo, data: series});
+        if (data.length == num_series) {
+          render(data);
+          $('#refresh_button').removeClass('loading');
+        }
+      } else {
+        get_chunk(repo, page + 1, per_page, series, data, num_series);
+      }
+    };
     $.ajax({
-      url: 'https://api.github.com/repos/' + repo + '/stargazers' +
-        '?per_page=' + per_page + '&page=' + page,
+      url: 'https://api.github.com/repos/' + repo + '/stargazers?' +
+        '&per_page=' + per_page + '&page=' + page,
       headers: { Accept: 'application/vnd.github.v3.star+json' },
+      error: function() {
+        onChunk([]);
+      },
       success: function(obj) {
         $.each(obj, function(i, v) {
           var t = new Date(v.starred_at);
           series.push([t.getTime(), series.length]);
         });
-        if (obj.length < per_page) {
-          data.push({label: repo, data: series});
-          if (data.length == num_series) {
-            render(data);
-            $('#refresh_button').removeClass('loading');
-          }
-        } else {
-          get_chunk(repo, page + 1, per_page, series, data, num_series);
-        }
+        onChunk(obj);
       }
     });
   };
