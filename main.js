@@ -24,7 +24,7 @@ $(document).ready(function() {
     var plot = $.plot('#graph', data, options);
   };
 
-  var get_chunk = function(repo, page, per_page, series, data, last) {
+  var get_chunk = function(repo, page, per_page, series, data, num_series) {
     $.ajax({
       url: 'https://api.github.com/repos/' + repo + '/stargazers' +
         '?per_page=' + per_page + '&page=' + page,
@@ -36,12 +36,12 @@ $(document).ready(function() {
         });
         if (obj.length < per_page) {
           data.push({label: repo, data: series});
-          if (last) {
+          if (data.length == num_series) {
             render(data);
             $('#refresh_button').removeClass('loading');
           }
         } else {
-          get_chunk(repo, page + 1, per_page, series, data, last);
+          get_chunk(repo, page + 1, per_page, series, data, num_series);
         }
       }
     });
@@ -52,18 +52,24 @@ $(document).ready(function() {
     var page = 1, per_page = 100, data = [];
     $('#refresh_button').addClass('loading');
     $.each(repos, function(i, repo) {
-      get_chunk(repo, 1, 100, [], data, i == repos.length - 1);
+      get_chunk(repo, 1, 100, [], data, repos.length);
     });
   };
 
-  $(document).on('change', '#repos_input', refresh);
-  $(document).on('click', '#refresh_button', refresh);
-
   $(document).on('change', '#repos_input', function() {
     location.hash = $(this).val();
+    refresh();
   });
-  if (location.hash) {
-    $('#repos_input').val(location.hash.substring(1));
-  }
-  $('#repos_input').trigger('change');
+
+  $(document).on('click', '#refresh_button', refresh);
+
+  $(window).on('hashchange', function() {
+    var str = location.hash.substring(1);
+    if (str) {
+      $('#repos_input').val(str);
+    }
+    $('#repos_input').trigger('change');
+  });
+
+  $(window).trigger('hashchange');
 });
