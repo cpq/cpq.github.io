@@ -10,7 +10,7 @@ $(document).ready(function() {
       grid: { borderWidth: 1, borderColor: '#ccc'},
       xaxis: { mode: 'time', ticks: 5 },
       //yaxis: getParam('yaxis', {}),
-      legend: { labelBoxBorderColor: '#fff' },
+      legend: { labelBoxBorderColor: '#fff', position: 'nw' },
       colors: [ '#DB2828', '#2185D0', '#FBBD08', '#21BA45',
         '#69c', '#fec', '#e39', '#9e2' ],
       hooks: {
