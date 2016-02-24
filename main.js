@@ -7,7 +7,7 @@ $(document).ready(function() {
         lineWidth: 2,
         fillColor: {colors: [ { opacity: 0 }, { opacity: 1 } ] }
       },
-      grid: { borderWidth: 1, borderColor: '#ccc'},
+      grid: { borderWidth: 1, borderColor: '#ccc', hoverable: true },
       xaxis: { mode: 'time', ticks: 5 },
       //yaxis: getParam('yaxis', {}),
       legend: {
@@ -27,7 +27,20 @@ $(document).ready(function() {
         }]
       }
     };
-    var plot = $.plot('#graph', data, options);
+    var div = $('#graph');
+    var plot = $.plot(div, data, options);
+    div.bind('plothover', function (event, pos, item) {
+      if (item) {
+        var x = item.datapoint[0].toFixed(2);
+        var y = item.datapoint[1].toFixed(2);
+        $('#graph_tooltip').html(y + '<br/>' +
+                                 moment(+x).format('YYYY-MM-DD HH:mm'))
+          .css({top: item.pageY+5, left: item.pageX+5})
+          .fadeIn(200);
+      } else {
+        $('#graph_tooltip').fadeOut(200);
+      }
+    });
   };
 
   var get_chunk = function(repo, page, per_page, series, data, num_series) {
@@ -74,6 +87,17 @@ $(document).ready(function() {
   });
 
   $(document).on('click', '#refresh_button', refresh);
+
+  // Graph tooltip
+  $("<div id='graph_tooltip'/>").css({
+    position: 'absolute',
+    display: 'none',
+    border: '1px solid #cca',
+    padding: '0.4em',
+    'white-space': 'nowrap',
+    'background-color': '#ffc',
+    opacity: 0.80
+  }).appendTo('body');
 
   $(window).on('hashchange', function() {
     var str = location.hash.substring(1);
