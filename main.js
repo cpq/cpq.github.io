@@ -67,7 +67,10 @@ $(document).ready(function() {
         }
       } else {
         $('#status').html(page);
-        get_chunk(repo, page + 1, per_page, series, data, num_series);
+        setTimeout(function() {
+          get_chunk(repo, page + 1, per_page, series, data, num_series);
+        }, 0);
+
       }
     };
     var tok = authToken ? '&access_token=' + authToken : '';
