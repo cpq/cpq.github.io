@@ -66,7 +66,7 @@ $(document).ready(function() {
           $('#status').fadeOut();
         }
       } else {
-        $('#status').show().html(page);
+        $('#status').html(page);
         get_chunk(repo, page + 1, per_page, series, data, num_series);
       }
     };
