@@ -134,7 +134,7 @@ $(document).ready(function() {
   if (m && m[1]) {
     // Github Oauth redirects us here
     $.ajax({
-      url: 'http://backend.cesanta.com/cgi-bin/gh.cgi',
+      url: 'https://backend.cesanta.com/cgi-bin/gh.cgi',
       data: { code: m[1] },
       dataType: 'jsonp',
       error: clearAuth,
