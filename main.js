@@ -63,8 +63,10 @@ $(document).ready(function() {
         if (data.length == num_series) {
           render(data);
           $('#refresh_button').removeClass('loading');
+          $('#status').fadeOut();
         }
       } else {
+        $('#status').show().html(page);
         get_chunk(repo, page + 1, per_page, series, data, num_series);
       }
     };
