@@ -1,5 +1,9 @@
 $(document).ready(function() {
 
+  var authCookieName = 'cpq_auth';
+  var ghClientId = '1c154c37a261751d93ac';
+  var authToken;
+
   var render = function(data) {
     var options = {
       lines: {
@@ -43,6 +47,15 @@ $(document).ready(function() {
     });
   };
 
+  function linkEnterToButtonPress(selector1, selector2) {
+    $(document).on('keypress', selector1, function(ev) {
+      if (ev.keyCode == 13) {
+        $(selector2).trigger('click');
+        return false;
+      }
+    });
+  };
+
   var get_chunk = function(repo, page, per_page, series, data, num_series) {
     var onChunk = function(obj) {
       if (obj.length < per_page) {
@@ -55,9 +68,10 @@ $(document).ready(function() {
         get_chunk(repo, page + 1, per_page, series, data, num_series);
       }
     };
+    var tok = authToken ? '&access_token=' + authToken : '';
     $.ajax({
       url: 'https://api.github.com/repos/' + repo + '/stargazers?' +
-        '&per_page=' + per_page + '&page=' + page,
+        '&per_page=' + per_page + '&page=' + page + tok,
       headers: { Accept: 'application/vnd.github.v3.star+json' },
       error: function() {
         onChunk([]);
@@ -77,7 +91,7 @@ $(document).ready(function() {
     var page = 1, per_page = 100, data = [];
     $('#refresh_button').addClass('loading');
     $.each(repos, function(i, repo) {
-      get_chunk(repo, 1, 100, [], data, repos.length);
+      get_chunk(repo, 1, per_page, [], data, repos.length);
     });
   };
 
@@ -87,6 +101,9 @@ $(document).ready(function() {
   });
 
   $(document).on('click', '#refresh_button', refresh);
+
+  linkEnterToButtonPress('#repos_input', '#refresh_button');
+  //$('#graph').height($(document.body).height() - $('.ui.menu').height() - 20);
 
   // Graph tooltip
   $("<div id='graph_tooltip'/>").css({
@@ -107,5 +124,43 @@ $(document).ready(function() {
     $('#repos_input').trigger('change');
   });
 
-  $(window).trigger('hashchange');
+  // Authorization snippet
+  var clearAuth = function() {
+    $.cookie(authCookieName, '');
+    location.reload();
+  };
+  $(document).on('click', '#logout', clearAuth);
+  var m = (location.search || '').match(/code=([^&#]+)/);
+  if (m && m[1]) {
+    // Github Oauth redirects us here
+    $.ajax({
+      url: 'http://backend.cesanta.com/cgi-bin/gh.cgi',
+      data: { code: m[1] },
+      dataType: 'jsonp',
+      error: clearAuth,
+      success: function(jsonData) {
+        //console.log(jsonData);
+        $.cookie(authCookieName, jsonData.token || '');
+        location.href = '/';
+      }
+    });
+  }
+  var authToken = $.cookie(authCookieName);
+
+  if (authToken) {
+    $.ajax({
+      url: 'https://api.github.com/user',
+      data: { access_token: authToken },
+      error: clearAuth,
+      success: function(jsonData) {
+        $('.authonly').removeClass('authonly');
+        $('#auth_button').hide();
+        $('#avatar').attr({ src: jsonData.avatar_url });
+        $('#username').text(jsonData.name || jsonData.login);
+        $(window).trigger('hashchange');
+      }
+    });
+  } else {
+    $(window).trigger('hashchange');
+  }
 });
