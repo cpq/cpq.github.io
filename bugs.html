@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Bugs</title>
+
+  <script src="jquery.min.js"></script>
+  <script src="moment.min.js"></script>
+  <script src="jquery.cookie.min.js"></script>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<style>
+table.bugs {
+	margin: 0 1em;
+	border-collapse: collapse;
+}
+table.bugs td, table.bugs th {
+	border: 1px solid #ccc;
+	padding: 4px;
+}
+.labels { padding-right: 0.2em; }
+.label {
+margin: 0 0.2em; font-size: 70%; border: 1px solid #ccc;
+border-radius: 0.4em; display: inline-block; padding: 0 0.2em;
+}
+.pull_request { background: #ffc; }
+.issue_no { padding-right: 0.4em; font-weight: bold; }
+body { font: 13px Menlo, Courier, fixed; }
+td, th { vertical-align: top; }
+a, a:visited { color: #369; }
+.error:before { color: red; }
+.pending:before { color: yellow; }
+.success:before { color: green; } 
+.error:before, .pending:before, .success:before { content: "●"; padding-right: 4px; }
+</style>
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+      <div class="container">
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right">
+            <div class="form-group">
+              <input type="text" placeholder="repos" id="repos" class="form-control"
+              	value="cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/dev">
+            </div>
+            <div class="form-group">
+              <input type="text" placeholder="users" id="users" class="form-control"
+              	value="cpq,alashkin,rojer,dfrank,unassigned">
+            </div>
+            <button type="submit" class="btn btn-success" id="refresh">Refresh</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+<div id="loading" style="display:none; background: #ffa; position: absolute; left:0; top: 0;">Loading...</div>
+
+<table class="bugs">
+  <thead id="bugs_head"></thead>
+  <tbody id="bugs_body"></tbody>
+</table>
+
+<script>
+  $.ajaxSetup({
+    beforeSend: function() {
+      $('#loading').show();
+    },
+    complete: function() {
+      $('#loading').hide();
+    },
+    settings: { dataType: 'jsonp'}
+  });
+
+	var refresh = function() {
+    var repos = $('#repos').val().split(/[,\s]+/);
+    var users = $('#users').val().split(/[,\s]+/);
+
+    // Populate table header
+    var tr = $('<tr/>').appendTo('#bugs_head');
+    $('<th/>').appendTo(tr);
+    $.each(repos, function(a, b) {
+      $('<th/>').html(b).appendTo(tr);
+    });
+
+    var mkid = function(user, repo) {
+    	return ('td_' + user + '_' + repo).replace('/', '_');
+    };
+
+    // Add users
+    $.each(users, function(i, user) {
+      var utr = $('<tr/>').appendTo('#bugs_body');
+      $('<th/>').html(user).appendTo(utr);
+      // Fetch bugs for this user for this repo
+      $.each(repos, function(_, repo) {
+        // Assign a unique ID for each user/repo cell
+        $('<td/>').attr('id', mkid(user, repo)).appendTo(utr);
+      });
+    });
+    var authCookieName = 'cpq_auth';
+    var authToken = $.cookie(authCookieName);
+    var tok = authToken ? '&access_token=' + authToken : '';
+
+    // For each repo, fetch issue list
+    $.each(repos, function(a, urepo) {
+      var repo = urepo.replace(".", "\\.").replace('/', '_');
+      $.ajax({
+        url: 'https://api.github.com/repos/' + urepo + '/issues?filter=all' + tok,
+        success: function(jsonData) {
+          $.each(jsonData, function(i, issue) {
+            if (issue.statuses_url) {
+              $.ajax({
+                url: issue.statuses_url + '?' + tok,
+                success: function(statuses) {
+                  $.each(statuses, function(i, s) {
+                    if (s.context == "OurCI") {
+                      $('#issue-' + issue.number).addClass(s.state);
+                      return false;
+                    }
+                  });
+                }});
+            }
+
+            var td = $('#td_unassigned_' + repo);
+            if (issue.assignee) {
+              td = $('#td_' + issue.assignee.login + '_' + repo);
+            }
+            var labels = $('<span class="labels"/>');
+            if (issue.labels !== undefined) {
+              $.each(issue.labels, function(i, l) {
+                $('<span class="label"/>')
+                .html(l.name)
+                .css({ background: '#' + l.color })
+                .appendTo(labels);
+              });
+            }
+            var no = $('<span class="issue_no">').html('#' + issue.number);
+            var link = $('<a/>')
+              .attr({href: issue.html_url})
+              .append(no);
+            $('<div/>').attr('id', 'issue-' + issue.number).append(link).append(labels).append(issue.title)
+              .appendTo(td).addClass(issue.pull_request ? 'pull_request' : '');
+          });
+        }
+      });
+    });
+    };
+jQuery(function() {
+  refresh();
+  $('#refresh').on('click', function() {
+  	$('#bugs_head,#bugs_body').empty();
+  	refresh();
+  });
+});
+</script>
+
+  </body>
+</html>
