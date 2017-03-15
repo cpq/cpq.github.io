@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <style>
 table.bugs {
@@ -43,7 +44,7 @@ a, a:visited { color: #369; }
     <nav class="navbar navbar-inverse">
       <div class="container">
         <div id="navbar" class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right">
+          <form class="navbar-form navbar-left">
             <div class="form-group">
               <input type="text" placeholder="repos" id="repos" class="form-control"
               	value="cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/v7,cesanta/slre,cesanta/frozen,cesanta/dev">
@@ -54,6 +55,13 @@ a, a:visited { color: #369; }
             </div>
             <button type="submit" class="btn btn-success" id="refresh">Refresh</button>
           </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a  href="https://github.com/login/oauth/authorize?scope=user:email&client_id=e389a2ced06450ac3f4a" id="auth_button">
+                <i class="fa fa-github"></i>
+              SignIn</a>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
@@ -101,6 +109,29 @@ a, a:visited { color: #369; }
         $('<td/>').attr('id', mkid(user, repo)).appendTo(utr);
       });
     });
+
+    // Authorization snippet
+    var clearAuth = function() {
+      $.cookie(authCookieName, '');
+      location.reload();
+    };
+    $(document).on('click', '#logout', clearAuth);
+    var m = (location.search || '').match(/code=([^&#]+)/);
+    if (m && m[1]) {
+      // Github Oauth redirects us here
+      $.ajax({
+        url: 'https://backend.cesanta.com/cgi-bin/gh.cgi',
+        data: { code: m[1], app: 'bugs' },
+        dataType: 'jsonp',
+        error: clearAuth,
+        success: function(jsonData) {
+          //console.log(jsonData);
+          $.cookie(authCookieName, jsonData.token || '');
+          location.reload();
+        }
+      });
+    }
+
     var authCookieName = 'cpq_auth';
     var authToken = $.cookie(authCookieName);
     var tok = authToken ? '&access_token=' + authToken : '';
@@ -154,6 +185,7 @@ jQuery(function() {
   $('#refresh').on('click', function() {
   	$('#bugs_head,#bugs_body').empty();
   	refresh();
+    return false;
   });
 });
 </script>
