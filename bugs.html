@@ -127,7 +127,7 @@ a, a:visited { color: #369; }
         success: function(jsonData) {
           //console.log(jsonData);
           $.cookie(authCookieName, jsonData.token || '');
-          location.reload();
+          location = location.pathname;
         }
       });
     }
