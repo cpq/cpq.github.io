@@ -28,13 +28,14 @@ var Header = createClass({
   },
   render: function(props) {
     var self = this;
-    var title = 'CCM over BLE setup';
+    var title = 'CCM';
     var src = 'images/logo-512x512.png';
     var icon = h('img', {src: src, width: 32, class: 'mr-2'});
     var mkitem = function(icon, href, title, onclick) {
+      var active = props.url == href ? ' active' : '';
       return h(
-          'a', {
-            class: 'nav-item nav-link',
+          preactRouter.Router.Link, {
+            class: 'nav-item nav-link ' + active,
             href: href,
             onClick: function() {
               self.setState({expanded: false});
@@ -43,7 +44,7 @@ var Header = createClass({
           title, mkicon(icon));
     };
     return h(
-        'nav', {class: 'navbar navbar-expand-* navbar-dark bg-dark'},
+        'nav', {class: 'navbar navbar-expand navbar-dark bg-dark'},
         h('a', {class: 'navbar-brand', href: '#'}, icon, title),
         h('button', {
           class: 'navbar-toggler',
@@ -55,9 +56,9 @@ var Header = createClass({
           h('span', {class: 'navbar-toggler-icon'})),
         h('div',
           {class: 'navbar-collapse' + (self.state.expanded ? '' : ' collapse')},
-          h('ul', {class: 'navbar-nav mr-auto text-right mt-2'},
-            mkitem('fa-wifi', '#', 'WiFi setup'),
-            mkitem('fa-gears', '#rpc', 'Call RPC'))));
+          h('ul', {class: 'navbar-nav ml-auto text-right mt-2'},
+            mkitem('fa-wifi d-none', '/', 'WiFi'),
+            mkitem('fa-gears d-none', '/rpc', 'RPC'))));
   },
 });
 
@@ -119,6 +120,7 @@ var RPC = createClass({
   },
   refresh: async function() {
     var self = this;
+    if (!app.state.device) return;
     self.setState({spin: true, methods: []});
     blerpc(app.state.device, 'RPC.List')
         .then(function(f) {
@@ -254,45 +256,69 @@ var WiFi = createClass({
   },
 });
 
-var Chooser = function(props) {
-  if (!navigator.bluetooth) {
-    return h(
-        'div', {class: 'my-2'},
-        h('div', {class: 'alert alert-danger'},
-          'BLE is not supported by this platform. Please use Chrome.'));
-  }
-  var button =
-      h('button', {
-        class: 'btn btn-sm btn-info btn-block my-2',
-        onClick: function() {
-          navigator.bluetooth
-              .requestDevice(
-                  {acceptAllDevices: true, optionalServices: [rpc_uuid]})
-              .then(function(dev) {
-                app.setState({device: dev});
-              })
-              .catch(function(err) {
-                alert(err);
-              });
+var Chooser = createClass({
+  init: function() {
+    this.state = {spin: false};
+  },
+  render: function(props, state) {
+    var self = this;
+    if (!navigator.bluetooth) {
+      return h(
+          'div', {class: 'my-2'},
+          h('div', {class: 'alert alert-danger'},
+            'BLE is not supported by this platform. Please use Chrome.'));
+    }
+    var button =
+        h('button', {
+          class: 'btn btn-sm btn-info btn-block my-2',
+          disabled: state.spin,
+          onClick: function() {
+            self.setState({spin: true});
+            navigator.bluetooth
+                .requestDevice(
+                    {acceptAllDevices: true, optionalServices: [rpc_uuid]})
+                .then(function(dev) {
+                  app.setState({device: dev});
+                  // return blerpc(dev, 'Sys.GetInfo');
+                })
+                .then(function(f) {
+                  // app.setState({appName: f.result.app});
+                  // console.log('f', f);
+                })
+                .catch(function(err) {
+                  alert(err);
+                })
+                .then(function() {
+                  self.setState({spin: false});
+                });
+          },
         },
-      },
-        mkicon('fa-search'), 'Choose device');
-  var name = app.state.device ? app.state.device.name : '<not chosen yet>'
-  var deviceName = h('div', {}, 'Device: ' + name);
-  return h('div', {class: ''}, button, deviceName);
-};
+          mkicon(state.spin ? 'fa-spin fa-refresh' : 'fa-search'),
+          'Choose device');
+    var name = app.state.device ? app.state.device.name : '<unset>'
+    var appName = app.state.appName || '<unknown_app>';
+    var deviceName = h('div', {}, 'Device: ' + name);
+    return h('div', {class: ''}, button, deviceName);
+  },
+});
 
 var App = createClass({
   init: function(props) {
-    this.state = {device: null};
+    this.state = {device: null, url: '/', appName: ''};
     app = this;
   },
   componentDidMount: function() {},
   render: function(props, state) {
     return h(
-        'div', {class: 'page h-100 container-fluid'}, h(Header, props),
-        h(Chooser, props),
-        h(preactRouter.Router, {history: History.createHashHistory()},
+        'div', {class: 'page h-100 container-fluid'},
+        h(Header, {url: app.state.url}), h(Chooser, props),
+        h(preactRouter.Router, {
+          history: History.createHashHistory(),
+          onChange: function(ev) {
+            app.setState({url: ev.url});
+            // console.log('route', ev);
+          },
+        },
           h(RPC, {path: '/rpc'}), h(WiFi, {default: true})));
   },
 });

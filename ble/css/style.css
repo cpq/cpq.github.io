@@ -2,7 +2,7 @@
 @font-face { font-family: MetropolisBold; src: url("../fonts/Metropolis-Bold.otf") format("opentype"); }
 html, body { height: 100vh; }
 * { outline: none !important; }
-.page { max-width: 480px; }
+.page { xmax-width: 480px; }
 body { color: #454955; font: 15px/1.5 MetropolisRegular, Helvetica, Arial, sans-serif; }
 h1, h2, h3, h4, h5, h6, b, th, strong, .nav-link { font-family: MetropolisBold, Helvetica, Arial, sans-serif; color: #777; }
 .metric { min-width: 9em; background: #A2ADBC; color: #F4F3EE; }
