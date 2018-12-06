@@ -147,10 +147,12 @@ var RPC = createClass({
 
 var WiFi = createClass({
   init: function() {
+    var remember = (window.localStorage || {}).ccm_remember == 'true';
     this.state = {
-      ssid: '',
-      pass: '',
+      ssid: remember ? (window.localStorage || {}).ccm_ssid || '' : '',
+      pass: remember ? (window.localStorage || {}).ccm_pass || '' : '',
       spin: false,
+      remember: remember,
     };
   },
   render: function(props, state) {
@@ -162,26 +164,47 @@ var WiFi = createClass({
           type: 'text',
           name: 'wifi_ssid',
           placeholder: 'WiFi network...',
+          value: state.ssid,
           onInput: function(ev) {
             self.setState({ssid: ev.target.value});
           },
           class: 'form-control form-control-sm my-2'
-        },
-          state.ssid),
+        }),
         h('input', {
           type: 'password',
           name: 'wifi_pass',
           placeholder: 'WiFi password...',
+          value: state.pass,
           onInput: function(ev) {
             self.setState({pass: ev.target.value});
           },
           class: 'form-control form-control-sm my-2'
-        },
-          state.pass),
+        }),
+        h('div', {class: 'custom-control custom-checkbox my-2'}, h('input', {
+            type: 'checkbox',
+            class: 'custom-control-input',
+            id: 'remember-checkbox',
+            checked: state.remember,
+            onChange: function(ev) {
+              self.setState({remember: ev.target.checked});
+              (window.localStorage || {}).ccm_remember = ev.target.checked;
+              if (!ev.target.checked) {
+                delete (window.localStorage || {}).ccm_ssid;
+                delete (window.localStorage || {}).ccm_pass;
+              }
+            },
+          }),
+          h('label',
+            {class: 'custom-control-label', 'for': 'remember-checkbox'},
+            'Remember network and password')),
         h('button', {
           class: 'btn btn-block btn-sm btn-warning',
           onClick: function(ev) {
             self.setState({spin: true});
+            if (state.remember) {
+              (window.localStorage || {}).ccm_ssid = state.ssid;
+              (window.localStorage || {}).ccm_pass = state.pass;
+            }
             var params = {
               config: {
                 wifi: {
@@ -197,6 +220,9 @@ var WiFi = createClass({
             blerpc(app.state.device, 'Config.Set', params)
                 .then(function(f) {
                   blerpc(app.state.device, 'Config.Save', {reboot: true})
+                })
+                .then(function() {
+                  alert('done.');
                 })
                 .catch(function(err) {
                   alert(err);
@@ -255,7 +281,7 @@ var Chooser = createClass({
     var name = app.state.device ? app.state.device.name : '<unset>'
     var appName = app.state.appName || '<unknown_app>';
     var deviceName = h('div', {}, 'Device: ' + name);
-    return h('div', {class: ''}, button, deviceName);
+    return h('div', {class: 'mb-4'}, button, deviceName);
   },
 });
 

@@ -8,12 +8,10 @@ h1, h2, h3, h4, h5, h6, b, th, strong, .nav-link { font-family: MetropolisBold, 
 .metric { min-width: 9em; background: #A2ADBC; color: #F4F3EE; }
 .btn,
 select,
-input[type="text"],
-input[type="email"],
-input[type="password"],
+input,
+label::before,
 textarea {
-  outline: none;
-  box-shadow:none !important; 
+  outline: none; box-shadow:none !important; 
   border: 1px solid #ccc !important; 
 }
 code, pre, .pre, .CodeMirror {
