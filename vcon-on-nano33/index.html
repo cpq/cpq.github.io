@@ -17,6 +17,8 @@
     const html = htm.bind(h);
     const tq = '```';
     const content = marked(`
+## Remote OTA for Arduino Nano 33 IoT
+
 Arduino Nano 33 IoT is a
 [great board](https://store.arduino.cc/arduino-nano-33-iot)
 with Atmel SAMD21 microcontroller, u-blox NINA-W102 radio module,
@@ -36,7 +38,7 @@ See https://vcon.io for more details.
           <div class="container bg-white p-5">
             <div class="p-5 bg-light">
               <p><a href="..">← Back to index page</a></p>
-              <div dangerouslySetInnerHTML=${{__html: content}} />
+              <div class="text-justify" dangerouslySetInnerHTML=${{__html: content}} />
             </div>
           </div>
         `
