@@ -14,23 +14,21 @@
   <script>
     const {h, render, Component} = preact;
     const html = htm.bind(h);
-    var ProjList = () => {
-      return html`
-        <ul class="my-3 px-3">
-          <li><a href="vcon-on-nano33/">VCON on Arduino Nano 33 IoT</a> - remote firmware update and remote control for Arduino Nano 33 IoT</li>
-          <li><a href="stars/">Github Stars</a> - shows GitHub project stars in time</li>
-        </ul>
-      `
-    }
+    const content = marked(`
+I am Sergey Lyubka, CTO of [Cesanta](https://vcon.io/contact.html),
+a technology company based in Dublin, Ireland.
+We develop software with focus on connected products and Internet of Things.
+
+- [VCON on Arduino Nano 33 IoT](vcon-on-nano33/) - remote firmware
+  update and remote control for Arduino Nano 33 IoT
+- [GitHub stars](stars/) - shows GitHub project stars in time
+    `)
     class App extends Component {
       render() {
         return html`
           <div class="container bg-white p-5">
             <div class="p-5 bg-light">
-              I am Sergey Lyubka, CTO of [Cesanta](https://vcon.io/contact.html),
-              a technology company based in Dublin, Ireland.
-              We develop software with focus on connected products and Internet of Things.
-              <${ProjList} />
+              <div dangerouslySetInnerHTML=${{__html: content}} />
             </div>
           </div>
         `
