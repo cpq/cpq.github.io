@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GitHub Stars</title>
+
+  <!-- Jquery & plugins -->
+  <script src="jquery.min.js"></script>
+
+  <!-- Semantic UI -->
+  <script src="semantic/semantic.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+
+  <!-- Charting library -->
+  <script src="jquery.flot.min.js"></script>
+  <script src="jquery.flot.time.js"></script>
+
+  <!-- Libs -->
+  <script src="moment.min.js"></script>
+  <script src="jquery.cookie.min.js"></script>
+
+  <!-- App specific -->
+  <script src="main.js"></script>
+  <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+  <div class="ui menu top attached stackable">
+    <div class="borderless item header">
+      View stars for Github projects:
+    </div>
+    <div class="ui input focus action" style="width: 35em;">
+      <input type="text" id="repos_input"
+        placeholder="user1/repo1, user2/repo2"
+        value="cesanta/mjson,cpq/asmbot"/>
+      <button id="refresh_button" class="ui teal icon button">
+        <i class="icon refresh"></i>
+      </button>
+    </div>
+    <div class="ui borderless item" id="status"></div>
+
+    <div class="ui right borderless fitted item"></div>
+
+    <a class="ui item ui link item"
+      href="https://github.com/login/oauth/authorize?scope=user:email&client_id=1c154c37a261751d93ac"
+      id="auth_button">
+      <i class="icon github"></i>
+    </a>
+
+    <div class="ui borderless item fitted authonly">
+      <img class="ui avatar image" id="avatar">
+    </div>
+    <div class="ui borderless item fitted authonly" id="username"></div>
+    <div class="link item authonly" id="logout"><i class="icon sign out"></i></div>
+  </div>
+
+  <div id="graph"></div>
+
+<!--
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-72452915-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+-->
+
+</body>
+</html>

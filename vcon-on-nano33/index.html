@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Remote OTA for Arduino Nano 33 IoT</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+    <script src="../js/preact.min.js"></script>
+    <script src="../js/htm.min.js"></script>
+    <script src="../js/marked.min.js"></script>
+  </head>
+  <body></body>
+  <script>
+    const {h, render, Component} = preact;
+    const html = htm.bind(h);
+    var content = marked(`
+Arduino Nano 33 IoT is a
+[great board](https://store.arduino.cc/arduino-nano-33-iot)
+with Atmel SAMD21 microcontroller, u-blox NINA-W102 radio module,
+32k SRAM and 256k of flash. In the video below, we load VCON firmware
+to the NINA module (which is based on ESP32).
+
+VCON firmware turns NINA module
+into a remote programmer. We can update Atmel firmware remotely. Also,
+VCON can connect to MQTT or HTTP services on behalf of Atmel MCU, thus
+Atmel firmware could be completely free from networking code, whilst
+using MQTT, HTTP and exporting its own functions as REST endpoints.
+    `)
+    class App extends Component {
+      render() {
+        return html`
+          <div class="container bg-white p-5">
+            <div class="p-5 bg-light">
+              <p><a href="..">← Back to index page</a></p>
+              <div dangerouslySetInnerHTML=${{__html: content}} />
+            </div>
+          </div>
+        `
+      }
+    };
+    window.onload = () => render(h(App), document.body);
+  </script>
+</html>
