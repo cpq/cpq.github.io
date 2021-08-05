@@ -42,20 +42,19 @@ a, a:visited { color: #369; }
 </head>
 <body>
     <nav class="navbar navbar-inverse">
-      <div class="container">
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-left">
             <div class="form-group">
               <input type="text" placeholder="repos" id="repos" class="form-control"
-              	value="cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/slre,cesanta/frozen,cesanta/mjson">
+              	value="cesanta/elk,cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/slre,cesanta/frozen,cesanta/mjson">
             </div>
             <div class="form-group">
               <input type="text" placeholder="users" id="users" class="form-control"
-              	value="cpq,rojer,dimonomid,unassigned">
+              	value="cpq,rojer,unassigned">
             </div>
             <button type="submit" class="btn btn-success" id="refresh">Refresh</button>
           </form>
-          <ul class="nav navbar-nav navbar-right">
+          <ul class="nav navbar-nav navbar-right" style="display: none;">
             <li>
               <a  href="https://github.com/login/oauth/authorize?scope=repo&client_id=e389a2ced06450ac3f4a" id="auth_button">
                 <i class="fa fa-github"></i>
@@ -66,7 +65,6 @@ a, a:visited { color: #369; }
             </li>
           </ul>
         </div>
-      </div>
     </nav>
 
 <div id="loading" style="display:none; background: #ffa; position: absolute; left:0; top: 0;">Loading...</div>
