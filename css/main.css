@@ -1,3 +1,4 @@
+html, body { margin: 0; padding: 0; height: 100%; }
 blockquote { margin-left: 3em; }
 blockquote:before { content: '\261E'; margin-left: -3em; position: absolute; }
 img, iframe { display: block; margin: auto !important; max-width: 100%; }
@@ -18,3 +19,10 @@ pre, code {
 code { padding: 0.1em 0.5em; }
 pre {margin: 1.2em 0 !important; padding: 1em; }
 pre code { padding: 0; }
+
+.navbar { background: #dee; padding: 0.5em; }
+.navbar a { margin: 0 0.2em; }
+body {
+  margin: 0 auto; padding: 0; max-width: 800px;
+  font-family: Helvetica, xArial, sans-serif;
+}

@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>hiii</title>
+    <title>cpq</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <script src="js/preact.min.js"></script>
-    <script src="js/htm.min.js"></script>
-    <script src="js/marked.min.js"></script>
+    <link rel="stylesheet" href="css/main.css" />
+    <!--
+      <link rel="stylesheet" href="css/bootstrap.min.css" />
+      <script src="js/preact.min.js"></script>
+      <script src="js/htm.min.js"></script>
+      <script src="js/marked.min.js"></script>
+      -->
   </head>
-  <body></body>
-  <script>
-    const {h, render, Component} = preact;
-    const html = htm.bind(h);
-    const content = marked(`
-I am Sergey Lyubka, CTO of [Cesanta](https://vcon.io/contact.html),
-a technology company based in Dublin, Ireland.
-We develop software with focus on connected products and Internet of Things.
+  <body>
 
-- [VCON on Arduino Nano 33 IoT](vcon-on-nano33/) - remote firmware
-  update and remote control for Arduino Nano 33 IoT
-- [GitHub stars](stars/) - shows GitHub project stars in time
-- [Github bug tracking](bugs/) - simple bug tracking for GitHub projects
-    `)
-    class App extends Component {
-      render() {
-        return html`
-          <div class="container bg-white p-5">
-            <div class="p-5 bg-light">
-              <div dangerouslySetInnerHTML=${{__html: content}} />
-            </div>
-          </div>
-        `
-      }
-    };
-    window.onload = () => render(h(App), document.body);
-  </script>
+    <div class="navbar">
+      <a href="/">home</a>
+      <a href="stars/">stars</a>
+      <a href="bugs/">bugs</a>
+    </div>
+
+    <h1>Intro</h1>
+
+    <p>
+    I am Sergey Lyubka, an engineer and entrepeneur.
+    I am a CTO and co-founder of <a href="https://cesanta.com">Cesanta</a> -
+    a technology company based in Dublin, Ireland.
+    I hold an MSc degree in Physics from Kyiv State University.
+    Interested in technology, holistic health, history, finance, politics,
+    and cider. My daughter listens to k-pop, so I have no choice
+    but to listen to it too. My Exo's bias is Baekhyun, and fav song is Monster.
+    I also like Psycho by Red Velvet and Time by Pink Floyd.
+    I don't sleep well cause our cat wakes everybody up early every morning.
+    </p>
+
+    <h1>Software projects</h1>
+    <ul>
+      <li><a href="https://github.com/cesanta/elk">elk</a> - tiny embeddable JS engine</li>
+      <li><a href="https://github.com/cesanta/mongoose">mongoose</a> - embedded web server</li>
+      <li><a href="https://github.com/cesanta/mjson">mjson</a> - JSON parser/emitter for embedded C/C++</li>
+      <li><a href="https://github.com/cpq/mdk">mdk</a> - bare-metal SDK for ESP32C3</li>
+    </ul>
+
+  </body>
 </html>
