@@ -40,7 +40,7 @@
       </div>`;
     };
 
-    const App = function(props) {
+    const Num = function(props) {
       const [num, setNum] = useState('');
       return html`
         <div class="m-5 p-4 xbg-light">
@@ -53,6 +53,15 @@
             <${Bits} value=${parseInt(num)} />
           </div>
         </div>`;
+    };
+
+    const App = function(props) {
+      return html`<div>
+        <${Num} />
+        <${Num} />
+        <${Num} />
+        <${Num} />
+      </div>`;
     };
 
     window.onload = () => render(h(App), document.body);
