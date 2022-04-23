@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>modal</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css" />
+    <style>
+      select, input, label::before, textarea { outline: none; box-shadow:none !important; border: 1px solid #ccc !important; }
+      input::placeholder { color: #ddd !important; }
+      .btn:focus,.btn:active:focus,.btn.active:focus,
+      .btn.focus,.btn:active.focus,.btn.active.focus { outline: none; box-shadow:none !important; }
+    </style>
+  </head>
+  <body></body>
+  <script type="module">
+    import { h, render } from 'https://unpkg.com/preact@latest?module'
+    import { useState, useEffect, useRef } from 'https://unpkg.com/preact@latest/hooks/dist/hooks.module.js?module'
+    import { html } from 'https://unpkg.com/htm/preact/index.module.js?module'
+
+    const Bit = function(props) {
+      let bg = '#fff';
+      if  (props.index > 7 && props.index < 16) bg = '#ddd';
+      if  (props.index > 23 && props.index < 32) bg = '#ddd';
+      const vbg = props.value ? '#dfd' : bg;
+      return html`<div class="d-flex flex-column small font-monospace"
+                       style="width:1.4em; background: ${bg};">
+        <div style="background: ${vbg}">${props.value}</div>
+        <div class="small text-muted">${props.index}</div>
+      </div>`;
+    };
+
+    const Bits = function(props) {
+      const v = i => (props.value >> i) & 1;
+      return html`<div class="d-flex justify-content-between text-center">
+        ${Array(32).fill(0)
+          .map((_, index) => h(Bit, {index, value: v(index)}))
+          .reverse()}
+      </div>`;
+    };
+
+    const App = function(props) {
+      const [num, setNum] = useState('');
+      return html`
+        <div class="m-5 p-4 xbg-light">
+          <div class="d-flex my-2">
+            <label style="min-width: 6em;">Number:</label>
+            <input class="form-input" autofocus oninput=${ev => setNum(ev.target.value)} value=${num} placeholder="Type a number" />
+          </div>
+          <div class="d-flex my-2">
+            <label style="min-width: 6em;">Bits:</label>
+            <${Bits} value=${parseInt(num)} />
+          </div>
+        </div>`;
+    };
+
+    window.onload = () => render(h(App), document.body);
+  </script>
+</html>
