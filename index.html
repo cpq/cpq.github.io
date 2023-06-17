@@ -5,29 +5,32 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/main.css" />
-    <!--
-      <link rel="stylesheet" href="css/bootstrap.min.css" />
-      <script src="js/preact.min.js"></script>
-      <script src="js/htm.min.js"></script>
-      <script src="js/marked.min.js"></script>
-      -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; }
+      body { margin: 0 auto; padding: 0; max-width: 80%; }
+      :root { font-family: 'Inter', sans-serif; font-feature-settings: "cv04", "ss01"; }
+      @supports (font-variation-settings: normal) {
+        :root { font-family: 'Inter var', sans-serif; }
+      }
+    </style>
   </head>
   <body>
 
     <h1>Intro</h1>
-
     <p>
-    I am Sergey Lyubka, an engineer and entrepeneur.
+    I am Sergey Lyubka, an engineer and entrepeneur (<a href="https://www.linkedin.com/in/sergey-lyubka-50ba985a/">LinkedIn</a>).
     I am a director and co-founder of <a href="https://cesanta.com">Cesanta</a> -
     a technology company based in Dublin, Ireland.
+    Cesanta develops software for embedded market.
     I hold an MSc degree in Physics from Kyiv State University, Ukraine.
     Interested in technology, holistic health, history, finance, politics.
     </p>
 
     <h2>Tutorials</h2>
     <ul>
-      <li><a href="https://github.com/cpq/bare-metal-programming-guide">bare-metal-programming-guide</a> - a guide on STM32 programming</li>
+      <li><a href="https://github.com/cpq/bare-metal-programming-guide">bare-metal-programming-guide</a> - a guide on microcontroller programming</li>
       <li><a href="https://gist.github.com/cpq/8598782">stack</a> - why stack grows down</li>
       <li><a href="https://gist.github.com/cpq/8598442">hash</a> - what is a hash and how does it work</li>
       <li><a href="https://gist.github.com/cpq/8598196">mutex</a> - what is a mutex and how does it work</li>
@@ -40,7 +43,7 @@
       <li><a href="bits/">bits</a> - display bits for numbers (used to analyze MCU registers)</li>
     </ul>
 
-    <h2>Software projects</h2>
+    <h2>Software</h2>
     <ul>
       <li><a href="https://github.com/cpq/mdk">mdk</a> - bare-metal SDK for ESP32C3</li>
       <li><a href="https://github.com/cpq/esputil">esputil</a> - ESP32 flashing utility for Windows, Linux, Mac</li>
