@@ -85,7 +85,12 @@ a, a:visited { color: #369; }
     settings: { dataType: 'jsonp'}
   });
 
-	var refresh = function() {
+  var ls_repos = localStorage.getItem('cpq.bugs.repos');
+  if (ls_repos) $('#repos').val(ls_repos);
+  var ls_users = localStorage.getItem('cpq.bugs.users');
+  if (ls_users) $('#users').val(ls_users);
+
+    var refresh = function() {
     var repos = $('#repos').val().split(/[,\s]+/);
     var users = $('#users').val().split(/[,\s]+/);
 
@@ -181,14 +186,16 @@ a, a:visited { color: #369; }
       });
     });
     };
-jQuery(function() {
-  refresh();
-  $('#refresh').on('click', function() {
-  	$('#bugs_head,#bugs_body').empty();
-  	refresh();
-    return false;
+  jQuery(function() {
+    refresh();
+    $('#refresh').on('click', function() {
+      $('#bugs_head,#bugs_body').empty();
+      refresh();
+      localStorage.setItem('cpq.bugs.repos', $('#repos').val());
+      localStorage.setItem('cpq.bugs.users', $('#users').val());
+      return false;
+    });
   });
-});
 </script>
 
   </body>
