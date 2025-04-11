@@ -44,25 +44,14 @@ a, a:visited { color: #369; }
     <nav class="navbar navbar-inverse">
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-left">
-            <div class="form-group">
-              <input type="text" placeholder="repos" id="repos" class="form-control"
-              	value="cesanta/elk,cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/frozen,cesanta/mjson,cpq/mdk">
-            </div>
-            <div class="form-group">
-              <input type="text" placeholder="users" id="users" class="form-control"
-              	value="cpq,rojer,unassigned">
-            </div>
+            <div class="form-group"> <input type="text" placeholder="repos" id="repos" class="form-control" value="cesanta/elk,cesanta/mongoose,cesanta/mongoose-os,cesanta/mjs,cesanta/frozen,cesanta/mjson,cpq/mdk"> </div>
+            <div class="form-group" style="display: none;"> <input type="text" placeholder="users" id="users" class="form-control" value="cpq,rojer,unassigned"> </div>
+            <div class="form-group"> <input type="text" placeholder="Github token" id="token" class="form-control" value=""> </div>
             <button type="submit" class="btn btn-success" id="refresh">Refresh</button>
           </form>
           <ul class="nav navbar-nav navbar-right" style="display: none;">
-            <li>
-              <a  href="https://github.com/login/oauth/authorize?scope=repo&client_id=e389a2ced06450ac3f4a" id="auth_button">
-                <i class="fa fa-github"></i>
-              SignIn</a>
-            </li>
-            <li>
-              <a id="logout" href="#"><i class="fa fa-sign-out"></i> SignOut</a>
-            </li>
+            <li> <a  href="https://github.com/login/oauth/authorize?scope=repo&client_id=e389a2ced06450ac3f4a" id="auth_button"> <i class="fa fa-github"></i> SignIn</a> </li>
+            <li> <a id="logout" href="#"><i class="fa fa-sign-out"></i> SignOut</a> </li>
           </ul>
         </div>
     </nav>
@@ -85,10 +74,15 @@ a, a:visited { color: #369; }
     settings: { dataType: 'jsonp'}
   });
 
-  var ls_repos = localStorage.getItem('cpq.bugs.repos');
-  if (ls_repos) $('#repos').val(ls_repos);
-  var ls_users = localStorage.getItem('cpq.bugs.users');
-  if (ls_users) $('#users').val(ls_users);
+  const users = {unassigned: true};
+
+  var ls_repos = localStorage.getItem('cpq.bugs.repos'); if (ls_repos) $('#repos').val(ls_repos);
+  var ls_users = localStorage.getItem('cpq.bugs.users'); if (ls_users) $('#users').val(ls_users);
+  var ls_token = localStorage.getItem('cpq.bugs.token'); if (ls_token) $('#token').val(ls_token);
+
+  var headers = {};
+  if (ls_token) headers['Authorization'] = 'Bearer ' + ls_token;
+  var tok = '';
 
     var refresh = function() {
     var repos = $('#repos').val().split(/[,\s]+/);
@@ -105,8 +99,9 @@ a, a:visited { color: #369; }
     	return ('td_' + user + '_' + repo).replace('/', '_');
     };
 
-    // Add users
-    $.each(users, function(i, user) {
+    const addUser = function(user) {
+      if (users[user]) return;
+      users[user] = true;
       var utr = $('<tr/>').appendTo('#bugs_body');
       $('<th/>').html(user).appendTo(utr);
       // Fetch bugs for this user for this repo
@@ -114,57 +109,24 @@ a, a:visited { color: #369; }
         // Assign a unique ID for each user/repo cell
         $('<td/>').attr('id', mkid(user, repo)).appendTo(utr);
       });
-    });
-
-    // Authorization snippet
-    var clearAuth = function() {
-      $.cookie(authCookieName, '');
-      location.reload();
     };
-    $(document).on('click', '#logout', clearAuth);
-    var m = (location.search || '').match(/code=([^&#]+)/);
-    if (m && m[1]) {
-      // Github Oauth redirects us here
-      $.ajax({
-        url: 'https://backend.cesanta.com/cgi-bin/gh.cgi',
-        data: { code: m[1], app: 'bugs' },
-        dataType: 'jsonp',
-        error: clearAuth,
-        success: function(jsonData) {
-          //console.log(jsonData);
-          $.cookie(authCookieName, jsonData.token || '');
-          location = location.pathname;
-        }
-      });
-    }
-
-    var authCookieName = 'cpq_auth';
-    var authToken = $.cookie(authCookieName);
-    var tok = authToken ? '&access_token=' + authToken : '';
+    addUser('unassigned');
 
     // For each repo, fetch issue list
     $.each(repos, function(a, urepo) {
       var repo = urepo.replace(".", "\\.").replace('/', '_');
       $.ajax({
+        headers: headers,
         url: 'https://api.github.com/repos/' + urepo + '/issues?filter=all' + tok,
         success: function(jsonData) {
           $.each(jsonData, function(i, issue) {
-            if (issue.statuses_url) {
-              $.ajax({
-                url: issue.statuses_url + '?' + tok,
-                success: function(statuses) {
-                  $.each(statuses, function(i, s) {
-                    if (s.context == "OurCI") {
-                      $('#issue-' + issue.number).addClass(s.state);
-                      return false;
-                    }
-                  });
-                }});
-            }
+            var user = issue.assignee ? issue.assignee.login : 'unassigned';
+            addUser(user);
 
             var td = $('#td_unassigned_' + repo);
             if (issue.assignee) {
               td = $('#td_' + issue.assignee.login + '_' + repo);
+              //console.log(issue.assignee);
             }
             var labels = $('<span class="labels"/>');
             if (issue.labels !== undefined) {
@@ -193,6 +155,7 @@ a, a:visited { color: #369; }
       refresh();
       localStorage.setItem('cpq.bugs.repos', $('#repos').val());
       localStorage.setItem('cpq.bugs.users', $('#users').val());
+      localStorage.setItem('cpq.bugs.token', $('#token').val());
       return false;
     });
   });
