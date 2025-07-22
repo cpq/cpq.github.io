@@ -2,25 +2,22 @@
 // All rights reserved.
 
 "use strict";
-import { h, html, render, useEffect, useRef, useSignal } from "./bundle.js";
-import { Files } from "./files.js";
+import { h, html, render, useSignalEffect, useEffect, useRef, useSignal } from "./bundle.js";
 import { Toolbar } from "./toolbar.js";
+import { Sidebar } from "./sidebar.js";
 
-function getMicro(sigState) {
-  const { board, micro } = sigState.value;
-  return !board && board !== "custom" ? board : micro;
-}
+function Editor({sigState}) {
+  const sigText = useSignal('');
+  useEffect(function() {
+    sigState.value.file && fetch('files/' + sigState.value.file)
+        .then(x => x.text())
+        .then(text => sigText.value = text);
+  }, [sigState.value.file]);
 
-const File = (name) => html`<div>${name}</div>`;
-
-function Sidebar() {
-  return html` <div class="w-64 px-4 py-2 border-r flex flex-col">
-    ${Object.keys(Files).map((file) => html`<${File} name=${name} />`)}
-  <//>`;
-}
-
-function Editor() {
-  return html` <div class="flex flex-grow h">Editor...<//>`;
+  return html`
+<pre class="flex flex-grow overflow-auto p-2">
+  ${sigText.value}
+<//>`;
 }
 
 function Console() {
@@ -28,20 +25,22 @@ function Console() {
 }
 
 function App() {
-  const sigState = useSignal({
-    board: localStorage.getItem("stm32_board") || "",
-    micro: localStorage.getItem("stm32_micro") || "",
-  });
-  console.log(sigState.value);
+  const sigState = useSignal(JSON.parse(localStorage.getItem("stm32_state") || "{}"));
+
+  useSignalEffect(() => {
+    localStorage.setItem("stm32_state", JSON.stringify(sigState.value));
+  }, [sigState.value]);
+
+  // console.log(sigState.value);
   return html` <div
     class="h-full flex flex-col bg-neutral-800 text-slate-200 text-sm"
   >
     <${Toolbar} sigState=${sigState} />
     <div class="h-full flex">
-      <${Sidebar} />
+      <${Sidebar} sigState=${sigState} />
       <div class="flex-grow flex flex-col">
-        <${Editor} />
-        <${Console} />
+        <${Editor} sigState=${sigState} />
+        <${Console} sigState=${sigState} />
       <//>
     <//>
   <//>`;

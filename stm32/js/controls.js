@@ -1,10 +1,10 @@
 import { h, html, render, useEffect, useRef, useSignal } from "./bundle.js";
 
 export const Input = ({ classes, ...rest }) => html`<input type="text" ...${rest}
-  class="input outline outline-transparent text-slate-700 px-2 rounded-sm h-6 ${classes}" />`;
+  class="input outline outline-transparent text-slate-700 px-2 rounded-sm h-6 disabled:bg-stone-400 ${classes}" />`;
 
 export const Select = ({ classes, options, value, ...rest }) => html`<select ...${rest}
-class="select outline outline-transparent text-slate-700 px-2 rounded-sm h-6 ${classes}">
+class="select outline outline-transparent text-slate-700 px-1 rounded-sm h-6 disabled:bg-stone-400 ${classes}">
   ${options.map(x => h('option', {value: x[0], selected: x[0] == value}, x[1]))}
 <//>`;
 

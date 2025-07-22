@@ -1,4 +1,14 @@
 export const Boards = [
+  {name: 'Nucleo-F756ZG', micro: 'stm32f756zg', description: 'M7 @ 216 MHz, 320K RAM, 1024K Flash', },
+  {name: 'STM32H573I-DK', micro: 'stm32h573ii', description: 'M33 @ 250 MHz, 640K RAM, 2048K Flash', },
+];
+
+export const Micros = {
+  stm32f756zg: { files: ['main.c', 'f7/Makefile'] },
+  stm32h573ii: { files: ['main.c', 'h5/Makefile'] },
+};
+
+export const Boards2 = [
   ['', '-- select board --'],
   ['custom', 'custom board'],
 
