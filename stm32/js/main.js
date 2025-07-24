@@ -9,15 +9,13 @@ import { Sidebar } from "./sidebar.js";
 function Editor({sigState}) {
   const sigText = useSignal('');
   useEffect(function() {
+    !sigState.value.file && (sigText.value = '');
     sigState.value.file && fetch('files/' + sigState.value.file)
         .then(x => x.text())
         .then(text => sigText.value = text);
   }, [sigState.value.file]);
 
-  return html`
-<pre class="flex flex-grow overflow-auto p-2">
-  ${sigText.value}
-<//>`;
+  return html`<textarea class="w-full h-full p-2 outline-none bg-neutral-800 text-neutral-200 font-mono">${sigText.value}<//>`
 }
 
 function Console() {

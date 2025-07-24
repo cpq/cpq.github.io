@@ -4,8 +4,8 @@ export const Boards = [
 ];
 
 export const Micros = {
-  stm32f756zg: { files: ['main.c', 'f7/Makefile'] },
-  stm32h573ii: { files: ['main.c', 'h5/Makefile'] },
+  stm32f756zg: { files: ['f7/Makefile', 'main.c', 'hal.c', 'hal.h', 'f7/link.ld'] },
+  stm32h573ii: { files: ['h5/Makefile', 'main.c', ] },
 };
 
 export const Boards2 = [
