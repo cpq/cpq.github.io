@@ -4,6 +4,11 @@
 #include "main.h"
 #include "hal.h"
 
+int _write(int fd, char *ptr, int len) {
+  if (fd == 1) uart_write_buf(UART_DEBUG, ptr, (size_t) len);
+  return len;
+}
+
 int main(void) {
   clock_init();
   rng_init();

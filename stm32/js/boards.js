@@ -1,31 +1,58 @@
 export const Boards = [
-  {name: 'Nucleo-F756ZG', micro: 'stm32f756zg', description: 'M7 @ 216 MHz, 320K RAM, 1024K Flash', },
-  {name: 'STM32H573I-DK', micro: 'stm32h573ii', description: 'M33 @ 250 MHz, 640K RAM, 2048K Flash', },
+  {
+    name: "Nucleo-F756ZG",
+    micro: "stm32f756zg",
+    description: "M7 @ 216 MHz, 320K RAM, 1024K Flash",
+  },
+  {
+    name: "STM32H573I-DK",
+    micro: "stm32h573ii",
+    description: "M33 @ 250 MHz, 640K RAM, 2048K Flash",
+  },
 ];
 
 export const Micros = {
-  stm32f756zg: { files: ['f7/Makefile', 'main.c', 'hal.c', 'hal.h', 'f7/link.ld'] },
-  stm32h573ii: { files: ['h5/Makefile', 'main.c', ] },
+  stm32f756zg: {
+    files: [
+      "Makefile",
+      "f7/main.h",
+      "main.c",
+      "f7/hal.h",
+      "hal.c",
+      "f7/link.ld",
+    ],
+  },
+  stm32h573ii: { files: ["h5/Makefile", "main.c"] },
 };
 
-export const Boards2 = [
-  ['', '-- select board --'],
-  ['custom', 'custom board'],
-
-  // f207: { description: 'Nucleo-F207ZG (M3 @ 120 MHz, 128K RAM, 1024K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // f429: { description: 'Nucleo-F429ZI (M4 @ 180 MHz, 256K RAM, 2048K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // f439: { description: 'Nucleo-F439ZI (M4 @ 180 MHz, 256K RAM, 2048K Flash)', ides: ['GCC+make', 'CubeIDE'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // f746: { description: 'Nucleo-F746ZG (M7 @ 216 MHz, 320K RAM, 1024K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  ['stm32f756zg', 'Nucleo-F756ZG (M7 @ 216 MHz, 320K RAM, 1024K Flash)'],
-  // f767: { description: 'Nucleo-F767ZI (M7 @ 216 MHz, 512K RAM, 2048K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h563: { description: 'Nucleo-H563ZI (M33 @ 250 MHz, 640K RAM, 2048K Flash)',ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  ['stm32h573ii', 'STM32H573I-DK (M33 @ 250 MHz, 640K RAM, 2048K Flash)'],
-  // h723: { description: 'Nucleo-H723ZG (M7 @ 480 MHz, 562K RAM, 1024K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h735: { description: 'STM32H735G-DK (M7 @ 550 MHz, 564K RAM, 1024K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h743: { description: 'Nucleo-H743ZI (M7 @ 480 MHz, 1024K RAM, 2048K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h745: { description: 'STM32H745I-DISCO (M7 @ 480 MHz, 1024K RAM, 2048K Flash)', cores: ['CM7', 'CM4'], ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h747: { description: 'STM32H747I-DISCO (M7 @ 480 MHz, 1024K RAM, 2048K Flash)', cores: ['CM7', 'CM4'], ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h753: { description: 'Nucleo-H753ZI (M7 @ 480 MHz, 1024K RAM, 2048K Flash)', ides: ['GCC+make', 'CubeIDE', 'Zephyr'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h755: { description: 'Nucleo-H755ZI-Q (M7 @ 480 MHz, 1024K RAM, 2048K Flash)', cores: ['CM7', 'CM4'], ides: ['GCC+make', 'CubeIDE'], rtoses: ['baremetal', 'FreeRTOS'], flasher: 'stlink'},
-  // h7s3l8: {description: 'Nucleo-H7S3L8 (M7 @ 600 MHz, 620K RAM, 64K Flash)', ides: ['GCC+make'], rtoses: ['baremetal']},
-];
+export const Series = {
+  f0: { arch: ["m0"] },
+  f1: { arch: ["m3"] },
+  f2: { arch: ["m3"] },
+  f3: { arch: ["m4f"] },
+  f4: { arch: ["m4f"] },
+  f7: {
+    arch: ["m7f"],
+    cmsis_repo_version: "v1.2.10",
+    ram_size: '320k',
+    cpu_flags: "-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16",
+  },
+  h7: { arch: ["m4f", "m7f"] },
+  h5: { arch: ["m33f"] },
+  u0: { arch: ["m0"] },
+  c0: { arch: ["m0+"] },
+  g0: { arch: ["m0+"] },
+  g4: { arch: ["m4f"] },
+  l0: { arch: ["m0+"] },
+  l1: { arch: ["m3"] },
+  l4: { arch: ["m4f"] },
+  l4plus: { arch: ["m4f"] },
+  l5: { arch: ["m33f"] },
+  u0: { arch: ["m0+"] },
+  u5: { arch: ["m33f"] },
+  wl: { arch: ["m0+", "m4"] },
+  wb: { arch: ["m0"] },
+  wb0: { arch: ["m0+", "m4f"] },
+  wba: { arch: ["m33f"] },
+  n6: { arch: ["m55f"] },
+};

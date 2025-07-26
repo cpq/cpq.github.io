@@ -20,11 +20,12 @@ uint64_t hal_get_tick(void) {
   return s_ticks;
 };
 
+uint32_t SystemCoreClock;
 void SystemInit(void) {  // Called automatically by startup code
 }
 
 struct stat;
-int _fstat(int fd, struct stat *st) {
+__attribute__((weak)) int _fstat(int fd, struct stat *st) {
   (void) fd, (void) st;
   return -1;
 }
@@ -51,69 +52,68 @@ void *_sbrk(int incr) {
   return prev_heap;
 }
 
-int _open(const char *path) {
+__attribute__((weak)) int _open(const char *path) {
   (void) path;
   return -1;
 }
 
-int _close(int fd) {
+__attribute__((weak)) int _close(int fd) {
   (void) fd;
   return -1;
 }
 
-int _isatty(int fd) {
+__attribute__((weak)) int _isatty(int fd) {
   (void) fd;
   return 1;
 }
 
-int _lseek(int fd, int ptr, int dir) {
+__attribute__((weak)) int _lseek(int fd, int ptr, int dir) {
   (void) fd, (void) ptr, (void) dir;
   return 0;
 }
 
-void _exit(int status) {
+__attribute__((weak)) void _exit(int status) {
   (void) status;
   for (;;) asm volatile("BKPT #0");
 }
 
-void _kill(int pid, int sig) {
+__attribute__((weak)) void _kill(int pid, int sig) {
   (void) pid, (void) sig;
 }
 
-int _getpid(void) {
+__attribute__((weak)) int _getpid(void) {
   return -1;
 }
 
-int _write(int fd, char *ptr, int len) {
-  (void) fd, (void) ptr, (void) len;
-  if (fd == 1) uart_write_buf(UART_DEBUG, ptr, (size_t) len);
-  return -1;
-}
-
-int _read(int fd, char *ptr, int len) {
+__attribute__((weak)) int _write(int fd, char *ptr, int len) {
   (void) fd, (void) ptr, (void) len;
   return -1;
 }
 
-int _link(const char *a, const char *b) {
+__attribute__((weak)) int _read(int fd, char *ptr, int len) {
+  (void) fd, (void) ptr, (void) len;
+  return -1;
+}
+
+__attribute__((weak)) int _link(const char *a, const char *b) {
   (void) a, (void) b;
   return -1;
 }
 
-int _unlink(const char *a) {
+__attribute__((weak)) int _unlink(const char *a) {
   (void) a;
   return -1;
 }
 
-int _stat(const char *path, struct stat *st) {
+__attribute__((weak)) int _stat(const char *path, struct stat *st) {
   (void) path, (void) st;
   return -1;
 }
 
-int mkdir(const char *path, mode_t mode) {
+__attribute__((weak)) int mkdir(const char *path, int mode) {
   (void) path, (void) mode;
   return -1;
 }
 
-void _init(void) {
+__attribute__((weak)) void _init(void) {
 }

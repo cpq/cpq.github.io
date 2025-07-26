@@ -1,0 +1,37 @@
+.ace-container {
+  height:100%;
+  width:100%;
+  overflow:auto;
+  font-size: 14px;
+}
+
+.ace-container .ace_gutter {
+  background: transparent;
+  border-right: 1px solid #666;
+}
+
+.ace_editor:has(.ace_text-input[readonly]) {
+  xbackground: #333;
+}
+
+.ace_editor {
+  background: transparent;
+}
+
+.ace-highlight-line {
+  position: absolute;
+  background: rgba(255, 255, 0, 0.3);
+  z-index: 20;
+  pointer-events: none;
+}
+.ace-highlight-line-tmp {
+  position: absolute;
+  z-index: 20;
+  animation: fadeOutHighlight ease-out 1.5s;
+  pointer-events: none;
+}
+
+@keyframes fadeOutHighlight {
+  from { background-color: rgba(255, 255, 0, 0.3); }
+  to { background-color: rgba(255, 255, 0, 0); }
+}

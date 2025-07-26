@@ -5,7 +5,7 @@ export const Input = ({ classes, ...rest }) => html`<input type="text" ...${rest
 
 export const Select = ({ classes, options, value, ...rest }) => html`<select ...${rest}
 class="select outline outline-transparent text-slate-700 px-1 rounded-sm h-6 disabled:bg-stone-400 ${classes}">
-  ${options.map(x => h('option', {value: x[0], selected: x[0] == value}, x[1]))}
+  ${options.map(x => Array.isArray(x) ? h('option', { value: x[0], selected: x[0] == value }, x[1]) : x)}
 <//>`;
 
 export function Button({title, onclick, disabled, ref, classes, ...rest}) {

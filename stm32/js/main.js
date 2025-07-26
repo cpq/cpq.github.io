@@ -5,17 +5,25 @@
 import { h, html, render, useSignalEffect, useEffect, useRef, useSignal } from "./bundle.js";
 import { Toolbar } from "./toolbar.js";
 import { Sidebar } from "./sidebar.js";
+import { Ace} from "./ace.js";
+import { fetchFile } from "./file.js";
 
 function Editor({sigState}) {
-  const sigText = useSignal('');
+  const sigText = useSignal(sigState.value.files[sigState.value.file] || '');
   useEffect(function() {
-    !sigState.value.file && (sigText.value = '');
-    sigState.value.file && fetch('files/' + sigState.value.file)
-        .then(x => x.text())
-        .then(text => sigText.value = text);
+    sigText.value = sigState.value.files[sigState.value.file] || ''
   }, [sigState.value.file]);
 
-  return html`<textarea class="w-full h-full p-2 outline-none bg-neutral-800 text-neutral-200 font-mono">${sigText.value}<//>`
+  return html`
+<div class="flex-grow flex flex-col">
+  <${Ace}
+    code=${sigText.value}
+    name=${sigState.value.file}
+    readonly=${true}
+    showGutter=${false}
+  />
+<//>`;
+  // return html`<textarea class="w-full h-full p-2 outline-none bg-neutral-800 text-neutral-200 font-mono">${sigText.value}<//>`
 }
 
 function Console() {

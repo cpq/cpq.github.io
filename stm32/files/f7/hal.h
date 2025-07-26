@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 
-bool timer_expired(volatile uint64_t *t, uint64_t prd, uint64_t now);
-uint64_t hal_get_tick(void);
-size_t hal_ram_free(void);
-size_t hal_ram_used(void);
-uint32_t SystemCoreClock;
+extern bool timer_expired(volatile uint64_t *t, uint64_t prd, uint64_t now);
+extern uint64_t hal_get_tick(void);
+extern size_t hal_ram_free(void);
+extern size_t hal_ram_used(void);
+extern uint32_t SystemCoreClock;
 
 #define BIT(x) (1UL << (x))
 #define CLRSET(reg, clear, set) ((reg) = ((reg) & ~(clear)) | (set))
