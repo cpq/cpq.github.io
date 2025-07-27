@@ -4,7 +4,7 @@ import { Boards, Micros } from "./boards.js";
 
 export function Toolbar({ sigState }) {
   const onnew = () => {
-    sigState.value = { ...sigState.value, board: "", micro: "", file: "" };
+    sigState.value = { ...sigState.value, board: "", micro: "", file: "", files: {} };
   };
 
   const files = Object.keys(sigState.value.files || {});

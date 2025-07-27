@@ -26,7 +26,7 @@ cmsis_core:
 	git clone -q -c advice.detachedHead=false --depth 1 -b 5.9.0 https://github.com/ARM-software/CMSIS_5 $@
 
 cmsis_${MCU_SERIES}:
-git clone -q -c advice.detachedHead=false --depth 1 -b ${MCU_CMSIS_REPO_VERSION} https://github.com/STMicroelectronics/cmsis_device_${MCU_SERIES} $@
+	git clone -q -c advice.detachedHead=false --depth 1 -b ${MCU_CMSIS_REPO_VERSION} https://github.com/STMicroelectronics/cmsis_device_${MCU_SERIES} $@
 
 clean:
 	rm -rf firmware.* cmsis_*
