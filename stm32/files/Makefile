@@ -9,7 +9,7 @@ CFLAGS += ${MCU_CFLAGS} $(CFLAGS_EXTRA)
 LDFLAGS ?= -Tlink.ld -nostdlib -nostartfiles --specs nosys.specs -lc -lgcc -Wl,--gc-sections -Wl,-Map=$@.map
 
 SOURCES = main.c hal.c
-SOURCES += cmsis_${MCU_SERIES}/Source/Templates/gcc/startup_stm32${MCU_FAMILY}xx.s
+SOURCES += cmsis_${MCU_SERIES}/Source/Templates/gcc/startup_stm32${MCU_SERIES}${MCU_FAMILY}xx.s
 
 all: firmware.bin
 

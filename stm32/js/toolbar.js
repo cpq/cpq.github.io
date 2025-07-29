@@ -1,6 +1,5 @@
 import { h, html, render, useEffect, useRef, useSignal } from "./bundle.js";
 import { Select, Button, Input } from "./controls.js";
-import { Boards, Micros } from "./boards.js";
 
 export function Toolbar({ sigState }) {
   const onnew = () => {

@@ -6,13 +6,12 @@ import { h, html, render, useSignalEffect, useEffect, useRef, useSignal } from "
 import { Toolbar } from "./toolbar.js";
 import { Sidebar } from "./sidebar.js";
 import { Ace} from "./ace.js";
-import { fetchFile } from "./file.js";
 
 function Editor({sigState}) {
   const sigText = useSignal(sigState.value.files[sigState.value.file] || '');
   useEffect(function() {
     sigText.value = sigState.value.files[sigState.value.file] || ''
-  }, [sigState.value.file]);
+  }, [sigState.value.file, sigState.value.files]);
 
   return html`
 <div class="flex-grow flex flex-col">

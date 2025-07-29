@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <stm32f756xx.h>
+#include <stm32${MCU_SERIES}${MCU_FAMILY}xx.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -144,9 +144,11 @@ static inline void ethernet_init(void) {
   }
   RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;    // Enable SYSCFG
   NVIC_EnableIRQ(ETH_IRQn);                // Setup Ethernet IRQ handler
+#ifdef SYSCFG_PMC_MII_RMII_SEL
   SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;  // Use RMII. Goes first!
   RCC->AHB1ENR |=
       RCC_AHB1ENR_ETHMACEN | RCC_AHB1ENR_ETHMACTXEN | RCC_AHB1ENR_ETHMACRXEN;
+#endif
 }
 
 static inline void clock_init(void) {
