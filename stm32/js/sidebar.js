@@ -31,7 +31,7 @@ function FileList({ sigState }) {
 
 function ProjectSettings({ sigState }) {
   function refetchFiles() {
-    generateProjectFiles(sigState.value.micro).then(
+    sigState.value.micro && generateProjectFiles(sigState.value.micro).then(
       (files) => (sigState.value = { ...sigState.value, files }),
     );
   }
@@ -85,7 +85,7 @@ function ProjectSettings({ sigState }) {
       <div class="">Microcontroller<//>
       <${AutoComplete}
         options=${MCU_LIST}
-        classes="w-28 ${Object.keys(sigState.value.files).length > 0 ? '' : 'border border-red-500 bg-red-100'}"
+        classes="w-28 ${Object.keys(sigState.value.files ?? {}).length > 0 ? '' : 'border border-red-500 bg-red-100'}"
         placeholder="stm32f756zg"
         value=${sigState.value.micro}
         oninput=${onmicro}

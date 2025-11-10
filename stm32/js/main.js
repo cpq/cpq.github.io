@@ -8,7 +8,7 @@ import { Sidebar } from "./sidebar.js";
 import { Ace} from "./ace.js";
 
 function Editor({sigState}) {
-  const sigText = useSignal(sigState.value.files[sigState.value.file] || '');
+  const sigText = useSignal(sigState.value.files?.[sigState.value.file] || '');
   useEffect(function() {
     sigText.value = sigState.value.files[sigState.value.file] || ''
   }, [sigState.value.file, sigState.value.files]);
@@ -16,8 +16,8 @@ function Editor({sigState}) {
   return html`
 <div class="flex-grow flex flex-col">
   <${Ace}
-    code=${sigText.value}
-    name=${sigState.value.file}
+    code=${sigText.value ?? ''}
+    name=${sigState.value.file ?? ''}
     readonly=${true}
     showGutter=${false}
   />

@@ -21,7 +21,7 @@ export function AutoComplete({ value, oninput, options, ...rest }) {
   };
 
   const currentSuggestions = options.filter((s) =>
-    s.toLowerCase().includes(sigInput.value.toLowerCase()),
+    s.toLowerCase().includes(sigInput.value?.toLowerCase()),
   );
   const autoscroll = () => {
     const element = document.querySelector(".autocomplete .active");
