@@ -13,14 +13,14 @@ SOURCES += cmsis_${MCU_SERIES}/Source/Templates/gcc/startup_stm32${MCU_SERIES}${
 
 all: firmware.bin
 
-firmware.elf: cmsis_core cmsis_${MCU_SERIES} hal.h main.h link.ld Makefile $(SOURCES)
+firmware.elf: cmsis_core cmsis_${MCU_SERIES} hal.h link.ld Makefile $(SOURCES)
 	arm-none-eabi-gcc $(SOURCES) $(CFLAGS) $(CFLAGS_EXTRA) $(LDFLAGS) -o $@
 
 firmware.bin: firmware.elf
 	arm-none-eabi-objcopy -O binary $< $@
 
 flash: firmware.bin
-	STM32_Programmer_CLI -c port=swd -e all -w $< 0x8000000 -hardRst
+	STM32_Programmer_CLI -c port=swd -e all -w firmware.elf -hardRst
 
 cmsis_core:
 	git clone -q -c advice.detachedHead=false --depth 1 -b 5.9.0 https://github.com/ARM-software/CMSIS_5 $@

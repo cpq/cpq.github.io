@@ -50,9 +50,7 @@ export function Toolbar({ sigState }) {
       <${Button} title="build" disabled="{!sigState.value.micro}" />
       <${Button} title="flash" disabled="{!sigState.value.micro}" />
       <${Button}
-        title=${window.showDirectoryPicker
-          ? "download project"
-          : "download project .zip"}
+        title="save"
         disabled=${files.length == 0}
         onclick=${ondownload}
       />

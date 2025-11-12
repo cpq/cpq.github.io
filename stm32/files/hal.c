@@ -3,7 +3,7 @@
 
 #include "hal.h"
 
-bool timer_expired(volatile uint64_t *t, uint64_t prd, uint64_t now) {
+bool hal_timer_expired(volatile uint64_t *t, uint64_t prd, uint64_t now) {
   if (now + prd < *t) *t = 0;                    // Time wrapped? Reset timer
   if (*t == 0) *t = now + prd;                   // Firt poll? Set expiration
   if (*t > now) return false;                    // Not expired yet, return

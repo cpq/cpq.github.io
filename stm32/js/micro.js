@@ -1,5 +1,6 @@
 export const Boards = [
   { name: "Nucleo-F756ZG", micro: "stm32f756zg" },
+  { name: "Nucleo-H723ZG", micro: "stm32h723zg", leds: "B0,E1,B14" },
   { name: "STM32H573I-DK", micro: "stm32h573ii" },
 ];
 
@@ -55,10 +56,16 @@ export const Micros = {
   },
   h7: {
     arch: ["m4f", "m7f"],
-    cmsis_repo_version: "v1.2.10",
-    cpu_flags: "-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16",
+    cmsis_repo_version: "v1.10.6",
+    cpu_flags: "-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16",
     uart: "USART3",
-    leds: "B0,B7,B14",
+    leds: "B0",
+    families: {
+      23: [
+        { models: "ve,ze", ram: 564, flash: 512 },
+        { models: "vg,zg", ram: 564, flash: 1024 },
+      ],
+    }
   },
   h5: { arch: ["m33f"] },
   u0: { arch: ["m0"] },
@@ -112,7 +119,7 @@ export const Micros = {
 
 function makeDefinitions(m) {
   const lines = [];
-  if (m.uart) lines.push(`#define UART_DEBUG ${m.uart}`);
+  if (m.uart) lines.push(`#define DEBUG_UART ${m.uart}`);
   if (m.leds) lines.push(...m.leds.split(',')
     .map((led, i) => `#define LED${i+1} PIN('${led[0]}', ${led[1]}${led[2] ||''})`));
   // console.log(m, lines);
@@ -134,7 +141,8 @@ export function getMicroList() {
   return result;
 }
 
-export function getMicro(name) {
+export function getMicro(name, board) {
+  const b = Boards.filter(x => x.name === board)?.[0] ?? {};
   const x = name.match(/^stm32(..)(..)(..)/) || [];
   const s = Micros[x[1]];
   const f = s?.families?.[x[2]];
@@ -149,13 +157,13 @@ export function getMicro(name) {
     cpu_flags: s.cpu_flags,
     ram: m.ram,
     flash: m.flash,
-    leds: s.leds,
-    uart: s.uart,
+    leds: b.leds ?? s.leds,
+    uart: b.uart ?? s.uart,
   };
 }
 
-function expandSubstitutions(text, micro) {
-  const m = getMicro(micro);
+function expandSubstitutions(text, micro, board) {
+  const m = getMicro(micro, board);
   if (!m) return text;
   const substitutions = {
     MCU_FAMILY: m.family,
@@ -172,12 +180,13 @@ function expandSubstitutions(text, micro) {
   return text;
 }
 
-const fetchFile = (name, micro) =>
+const fetchFile = (name, micro, board) =>
   fetch(`files/${name}`)
     .then((x) => x.text())
-    .then((text) => expandSubstitutions(text, micro));
+    .then((text) => expandSubstitutions(text, micro, board));
 
-export function generateProjectFiles(micro) {
+export function generateProjectFiles(micro, board) {
+  // console.log(1, micro, board);
   const m = getMicro(micro);
   if (!m) return Promise.resolve({});
   const FILES = [
@@ -193,7 +202,7 @@ export function generateProjectFiles(micro) {
   for (const name of FILES) files[basename(name)] = "";
   return Promise.all(
     FILES.map((name) =>
-      fetchFile(name, micro).then((text) => (files[basename(name)] = text)),
+      fetchFile(name, micro, board).then((text) => (files[basename(name)] = text)),
     ),
   ).then(() => files);
 }

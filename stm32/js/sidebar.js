@@ -31,7 +31,7 @@ function FileList({ sigState }) {
 
 function ProjectSettings({ sigState }) {
   function refetchFiles() {
-    sigState.value.micro && generateProjectFiles(sigState.value.micro).then(
+    sigState.value.micro && generateProjectFiles(sigState.value.micro, sigState.value.board).then(
       (files) => (sigState.value = { ...sigState.value, files }),
     );
   }
@@ -48,7 +48,7 @@ function ProjectSettings({ sigState }) {
         : board == "custom"
           ? sigState.value.micro
           : Boards.find((x) => x.name == board).micro;
-    sigState.value = { ...sigState.value, board, micro, file: "", files: [] };
+    sigState.value = { ...sigState.value, board, micro, files: [] };
     refetchFiles();
   };
   const onmicro = (ev) => {
@@ -82,7 +82,7 @@ function ProjectSettings({ sigState }) {
       />
     <//>
     <div class="flex gap-2 items-center justify-between px-4 py-1">
-      <div class="">Microcontroller<//>
+      <div class="">MCU<//>
       <${AutoComplete}
         options=${MCU_LIST}
         classes="w-28 ${Object.keys(sigState.value.files ?? {}).length > 0 ? '' : 'border border-red-500 bg-red-100'}"
@@ -96,7 +96,7 @@ function ProjectSettings({ sigState }) {
 }
 
 export function Sidebar({ sigState }) {
-  return html` <div class="w-64 border-r flex flex-col">
+  return html` <div class="w-56 border-r flex flex-col">
     <${ProjectSettings} sigState=${sigState} />
     <${FileList} sigState=${sigState} />
   <//>`;
