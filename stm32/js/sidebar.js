@@ -1,5 +1,5 @@
 import { h, html, render, useEffect, useRef, useSignal } from "./bundle.js";
-import { Select, Button, Input } from "./controls.js";
+import { Select, Button, Input, Icon } from "./controls.js";
 import { Boards, generateProjectFiles, getMicroList } from "./micro.js";
 import { AutoComplete } from "./autocompl.js";
 
@@ -70,10 +70,13 @@ function ProjectSettings({ sigState }) {
   // ];
   // console.log(series.map(x => Array.isArray(x)));
 
+  const delay = (ms, value) => new Promise(r => setTimeout(r, ms, value));
+
   return html` <div class="py-2 border-b">
     <div class="font-bold bg-neutral-500 px-4 py-1 hidden">Settings<//>
     <div class="flex gap-2 items-center justify-between px-4 py-1">
       <div class="">Board<//>
+      <${Button} icon=eye onclick=${ev => delay(500)}/>
       <${Select}
         options=${boards}
         classes="w-28"
@@ -96,7 +99,7 @@ function ProjectSettings({ sigState }) {
 }
 
 export function Sidebar({ sigState }) {
-  return html` <div class="w-56 border-r flex flex-col">
+  return html` <div class="w-60 border-r flex flex-col">
     <${ProjectSettings} sigState=${sigState} />
     <${FileList} sigState=${sigState} />
   <//>`;

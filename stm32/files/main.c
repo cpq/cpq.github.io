@@ -23,6 +23,7 @@ int main(void) {
   hal_rng_init();
   hal_gpio_output(LED1);
   hal_uart_init(DEBUG_UART, 115200);
+  printf("Initialised. CPU clock: %lu\r\n", SystemCoreClock / 1000000);
 
   for (;;) {
     blink_task();

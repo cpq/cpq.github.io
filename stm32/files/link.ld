@@ -10,12 +10,7 @@ SECTIONS {
   .text     : { *(.text* .text.*) }     > flash
   .rodata   : { *(.rodata*) }           > flash
 
-  .data : {
-    _sdata = .;
-    *(.first_data)
-    *(.data SORT(.data.*))
-    _edata = .;
-  } > sram AT > flash
+  .data : { _sdata = .; *(.first_data) *(.data SORT(.data.*)) _edata = .; } > sram AT > flash
   _sidata = LOADADDR(.data);
 
   .bss : { _sbss = .; *(.bss SORT(.bss.*) COMMON) _ebss = .; } > sram
