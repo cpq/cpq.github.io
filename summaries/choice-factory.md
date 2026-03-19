@@ -128,7 +128,7 @@ Example: People continue watching bad movies because they paid for the ticket.
 Application: Encourage early investment of time or effort to reduce churn.
 
 
-# Recommended Books from The Choice Factory
+## Recommended Books from The Choice Factory
 
 - Thinking, Fast and Slow - Daniel Kahneman  
 - Predictably Irrational - Dan Ariely  
