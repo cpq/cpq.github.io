@@ -28,7 +28,8 @@ table.bugs td, table.bugs th {
 margin: 0 0.2em; font-size: 70%; border: 1px solid #ccc;
 border-radius: 0.4em; display: inline-block; padding: 0 0.2em;
 }
-.pull_request { background: #ffc; font-weight: 900; }
+.pull_request { background: #ffa; font-weight: 900; }
+.approved { background: #afa !important; }
 .issue_no { padding-right: 0.4em; font-weight: bold; }
 body { font: 13px Menlo, Courier, fixed; }
 td, th { vertical-align: top; }
@@ -112,6 +113,42 @@ a, a:visited { color: #369; }
     };
     addUser('unassigned');
 
+    const getPrReviewState = function(reviews) {
+      var latestByUser = {};
+      $.each(reviews, function(_, review) {
+        if (!review.user) return;
+        if (review.state === 'COMMENTED' || review.state === 'PENDING') return;
+        latestByUser[review.user.login] = review.state;
+      });
+      for (var i = reviews.length - 1; i >= 0; i--) {
+        var review = reviews[i];
+        if (review.user && review.state === 'APPROVED' && latestByUser[review.user.login] === 'APPROVED') {
+          return {approved: true, user: review.user.login};
+        }
+      }
+      return {approved: false};
+    };
+
+    const renderIssue = function(repo, issue, user, extraClass) {
+      addUser(user);
+      var td = $(`#td_${user}_${repo}`);
+      var labels = $('<span class="labels"/>');
+      if (issue.labels !== undefined) {
+        $.each(issue.labels, function(i, l) {
+          $('<span class="label"/>')
+          .html(l.name)
+          .css({ background: '#' + l.color })
+          .appendTo(labels);
+        });
+      }
+      var no = $('<span class="issue_no">').html('#' + issue.number);
+      var link = $('<a/>')
+        .attr({href: issue.html_url})
+        .append(no);
+      $('<div/>').attr('id', 'issue-' + issue.number).append(link).append(labels).append(issue.title)
+        .appendTo(td).addClass(extraClass || '');
+    };
+
     // For each repo, fetch issue list
     $.each(repos, function(a, urepo) {
       var repo = urepo.replace(".", "\\.").replace('/', '_');
@@ -125,24 +162,23 @@ a, a:visited { color: #369; }
             success: function(jsonData) {
               $.each(jsonData, function(i, issue) {
                 var pr = pulls.filter(x => x.number === issue.number)?.[0];
-                var user = issue?.assignee?.login || pr?.requested_reviewers?.[0]?.login || 'unassigned';
-                addUser(user);
-                var td = $(`#td_${user}_${repo}`);
-                var labels = $('<span class="labels"/>');
-                if (issue.labels !== undefined) {
-                  $.each(issue.labels, function(i, l) {
-                    $('<span class="label"/>')
-                    .html(l.name)
-                    .css({ background: '#' + l.color })
-                    .appendTo(labels);
-                  });
+                if (!issue.pull_request || !pr) {
+                  renderIssue(repo, issue, issue?.assignee?.login || 'unassigned', '');
+                  return;
                 }
-                var no = $('<span class="issue_no">').html('#' + issue.number);
-                var link = $('<a/>')
-                  .attr({href: issue.html_url})
-                  .append(no);
-                $('<div/>').attr('id', 'issue-' + issue.number).append(link).append(labels).append(issue.title)
-                  .appendTo(td).addClass(issue.pull_request ? 'pull_request' : '');
+                $.ajax({
+                  headers: headers,
+                  url: 'https://api.github.com/repos/' + urepo + '/pulls/' + issue.number + '/reviews?per_page=100' + tok,
+                  success: function(reviews) {
+                    var reviewState = getPrReviewState(reviews);
+                    var user = reviewState.user || pr?.requested_reviewers?.[0]?.login || 'unassigned';
+                    renderIssue(repo, issue, user, reviewState.approved ? 'pull_request approved' : 'pull_request');
+                  },
+                  error: function() {
+                    var user = pr?.requested_reviewers?.[0]?.login || 'unassigned';
+                    renderIssue(repo, issue, user, 'pull_request');
+                  },
+                });
               });
             }
           });
