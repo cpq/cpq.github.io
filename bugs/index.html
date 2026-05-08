@@ -35,7 +35,7 @@ td, th { vertical-align: top; }
 a, a:visited { color: #369; }
 .error:before { color: red; }
 .pending:before { color: yellow; }
-.success:before { color: green; } 
+.success:before { color: green; }
 .error:before, .pending:before, .success:before { content: "●"; padding-right: 4px; }
 </style>
 
@@ -117,34 +117,36 @@ a, a:visited { color: #369; }
       var repo = urepo.replace(".", "\\.").replace('/', '_');
       $.ajax({
         headers: headers,
-        url: 'https://api.github.com/repos/' + urepo + '/issues?filter=all' + tok,
-        success: function(jsonData) {
-          $.each(jsonData, function(i, issue) {
-            var user = issue.assignee ? issue.assignee.login : 'unassigned';
-            addUser(user);
-
-            var td = $('#td_unassigned_' + repo);
-            if (issue.assignee) {
-              td = $('#td_' + issue.assignee.login + '_' + repo);
-              //console.log(issue.assignee);
-            }
-            var labels = $('<span class="labels"/>');
-            if (issue.labels !== undefined) {
-              $.each(issue.labels, function(i, l) {
-                $('<span class="label"/>')
-                .html(l.name)
-                .css({ background: '#' + l.color })
-                .appendTo(labels);
+        url: 'https://api.github.com/repos/' + urepo + '/pulls?filter=all' + tok,
+        success: function(pulls) {
+          $.ajax({
+            headers: headers,
+            url: 'https://api.github.com/repos/' + urepo + '/issues?filter=all' + tok,
+            success: function(jsonData) {
+              $.each(jsonData, function(i, issue) {
+                var pr = pulls.filter(x => x.number === issue.number)?.[0];
+                var user = issue?.assignee?.login || pr?.requested_reviewers?.[0]?.login || 'unassigned';
+                addUser(user);
+                var td = $(`#td_${user}_${repo}`);
+                var labels = $('<span class="labels"/>');
+                if (issue.labels !== undefined) {
+                  $.each(issue.labels, function(i, l) {
+                    $('<span class="label"/>')
+                    .html(l.name)
+                    .css({ background: '#' + l.color })
+                    .appendTo(labels);
+                  });
+                }
+                var no = $('<span class="issue_no">').html('#' + issue.number);
+                var link = $('<a/>')
+                  .attr({href: issue.html_url})
+                  .append(no);
+                $('<div/>').attr('id', 'issue-' + issue.number).append(link).append(labels).append(issue.title)
+                  .appendTo(td).addClass(issue.pull_request ? 'pull_request' : '');
               });
             }
-            var no = $('<span class="issue_no">').html('#' + issue.number);
-            var link = $('<a/>')
-              .attr({href: issue.html_url})
-              .append(no);
-            $('<div/>').attr('id', 'issue-' + issue.number).append(link).append(labels).append(issue.title)
-              .appendTo(td).addClass(issue.pull_request ? 'pull_request' : '');
           });
-        }
+        },
       });
     });
     };
