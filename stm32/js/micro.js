@@ -1,7 +1,6 @@
 export const Boards = [
   { name: "Nucleo-F756ZG", micro: "stm32f756zg" },
   { name: "Nucleo-H723ZG", micro: "stm32h723zg", leds: "B0,E1,B14" },
-  { name: "STM32H573I-DK", micro: "stm32h573ii" },
 ];
 
 export const Micros = {

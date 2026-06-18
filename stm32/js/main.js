@@ -2,27 +2,24 @@
 // All rights reserved.
 
 "use strict";
-import { h, html, render, useSignalEffect, useEffect, useRef, useSignal } from "./bundle.js";
+import { h, html, render, useSignalEffect, useSignal } from "./bundle.js";
 import { Toolbar } from "./toolbar.js";
 import { Sidebar } from "./sidebar.js";
 import { Ace} from "./ace.js";
 
 function Editor({sigState}) {
-  const sigText = useSignal(sigState.value.files?.[sigState.value.file] || '');
-  useEffect(function() {
-    sigText.value = sigState.value.files[sigState.value.file] || ''
-  }, [sigState.value.file, sigState.value.files]);
+  const file = sigState.value.file ?? '';
+  const text = sigState.value.files?.[file] ?? '';
 
   return html`
 <div class="flex-grow flex flex-col">
   <${Ace}
-    code=${sigText.value ?? ''}
-    name=${sigState.value.file ?? ''}
+    code=${text}
+    name=${file}
     readonly=${true}
     showGutter=${false}
   />
 <//>`;
-  // return html`<textarea class="w-full h-full p-2 outline-none bg-neutral-800 text-neutral-200 font-mono">${sigText.value}<//>`
 }
 
 function Console() {

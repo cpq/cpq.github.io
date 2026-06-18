@@ -25,15 +25,10 @@ export function Toolbar({ sigState }) {
       );
     } else {
       var zip = new JSZip();
-      Promise.all(
-        files.map((name) =>
-          fetch(`files/${name}`)
-            .then((x) => x.text())
-            .then((text) =>
-              zip.file(`stm32/${name.replace(/^.+\//g, "")}`, text),
-            ),
-        ),
-      )
+      for (const name of files) {
+        zip.file(`stm32/${name.replace(/^.+\//g, "")}`, sigState.value.files[name]);
+      }
+      Promise.resolve()
         .then(() => zip.generateAsync({ type: "uint8array" }))
         .then((blob) => {
           let a = document.createElement("a");

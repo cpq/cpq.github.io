@@ -30,10 +30,13 @@ function FileList({ sigState }) {
 }
 
 function ProjectSettings({ sigState }) {
-  function refetchFiles() {
-    sigState.value.micro && generateProjectFiles(sigState.value.micro, sigState.value.board).then(
-      (files) => (sigState.value = { ...sigState.value, files }),
-    );
+  function refetchFiles(micro = sigState.value.micro, board = sigState.value.board) {
+    if (!micro) return;
+    generateProjectFiles(micro, board).then((files) => {
+      if (sigState.value.micro === micro && sigState.value.board === board) {
+        sigState.value = { ...sigState.value, files };
+      }
+    });
   }
 
   useEffect(() => {
@@ -49,11 +52,12 @@ function ProjectSettings({ sigState }) {
           ? sigState.value.micro
           : Boards.find((x) => x.name == board).micro;
     sigState.value = { ...sigState.value, board, micro, files: [] };
-    refetchFiles();
+    refetchFiles(micro, board);
   };
   const onmicro = (ev) => {
-    sigState.value = { ...sigState.value, micro: ev.target.value, files: [] };
-    refetchFiles();
+    const micro = ev.target.value;
+    sigState.value = { ...sigState.value, micro, files: [] };
+    refetchFiles(micro, sigState.value.board);
   };
 
   const boards = [
