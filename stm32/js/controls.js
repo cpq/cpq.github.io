@@ -28,9 +28,19 @@ export function Button({title, onclick, disabled, ref, classes, icon, ...rest}) 
   const styles = 'bg-teal-600 hover:bg-teal-700 disabled:bg-stone-500';
   return html`
 <button type="button"
-  class="inline-flex justify-center items-center gap-2 rounded-sm px-2.5 py-0.5 font-semibold text-white shadow-sm ${styles} ${classes ?? ''} ${sigSpin.value ? 'animate-pulse' : ''}"
+  class="relative inline-flex justify-center items-center rounded-sm px-2.5 py-0.5 font-semibold text-white shadow-sm ${styles} ${classes ?? ''}"
   ...${rest} ref=${ref} onclick=${cb} disabled=${disabled || sigSpin.value} >
-  <span class=${title ? '' : 'hidden'}>${title}<//>
-  <${Icon} name=${icon} classes="${icon ? '' : 'hidden'}" />
+  ${sigSpin.value ? html`
+    <span
+      aria-hidden="true"
+      class="absolute inset-0 flex items-center justify-center"
+    >
+      <span class="h-3 w-3 rounded-full border-2 border-white/40 border-t-white animate-spin"><//>
+    <//>
+  ` : null}
+  <span class="inline-flex items-center gap-2 ${sigSpin.value ? 'opacity-35' : ''}">
+    <span class=${title ? '' : 'hidden'}>${title}<//>
+    <${Icon} name=${icon} classes="${icon ? '' : 'hidden'}" />
+  <//>
 <//>`
 };

@@ -12,7 +12,8 @@ export const Micros = {
   f7: {
     arch: ["m7f"],
     cmsis_repo_version: "v1.2.10",
-    cpu_flags: "-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16",
+    xcpu_flags: "-mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16",
+    cpu_flags: "-mcpu=cortex-m7 -mfloat-abi=hard -mfpu=fpv5-sp-d16 --target=thumbv7em-none-eabihf",
     uart: "USART3",
     leds: "B0,B7,B14",
     families: {

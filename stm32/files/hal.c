@@ -3,12 +3,12 @@
 
 #include "hal.h"
 
-bool hal_timer_expired(volatile uint64_t *t, uint64_t period, uint64_t now) {
-  uint64_t diff = now - *t;         // Wrap-safe elapsed time since last expiry
-  if (period == 0) return false;    // Avoid division by zero
-  if (diff < period) return false;  // Period has not elapsed yet
-  *t += (diff / period) * period;   // Preserve cadence, skip missed periods
-  return true;
+bool hal_timer_expired(volatile uint64_t *t, uint64_t prd, uint64_t now) {
+  if (now + prd < *t) *t = 0;                    // Time wrapped? Reset timer
+  if (*t == 0) *t = now + prd;                   // Firt poll? Set expiration
+  if (*t > now) return false;                    // Not expired yet, return
+  *t = (now - *t) > prd ? now + prd : *t + prd;  // Next expiration time
+  return true;                                   // Expired, return true
 }
 
 static volatile uint64_t s_ticks;  // Milliseconds since boot
@@ -23,6 +23,9 @@ uint64_t hal_get_tick(void) {
 uint32_t SystemCoreClock;
 void SystemInit(void) {  // Called automatically by startup code
 }
+
+void __libc_init_array(void) {  // Called by startup code before main(). No
+}                                // libc, so no static constructors to run.
 
 struct stat;
 __attribute__((weak)) int _fstat(int fd, struct stat *st) {

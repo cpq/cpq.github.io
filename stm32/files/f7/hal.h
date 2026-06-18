@@ -8,8 +8,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include <stddef.h>
+// #include <stdio.h>
+// #include <string.h>
 
 #define BIT(x) (1UL << (x))
 #define CLRSET(reg, clear, set) ((reg) = ((reg) & ~(clear)) | (set))
@@ -131,22 +132,22 @@ static inline uint32_t hal_rng_read(void) {
   return RNG->DR;
 }
 
-// Hw pull-ups on PHY RXD0,1,DV to enable autonegotiation
-static inline void hal_ethernet_init(void) {
-  // Initialise Ethernet. Enable MAC GPIO pins, see
-  // https://www.farnell.com/datasheets/2014265.pdf section 6.10
-  uint16_t pins[] = {PIN('A', 1),  PIN('A', 2),  PIN('A', 7),
-                     PIN('B', 13), PIN('C', 1),  PIN('C', 4),
-                     PIN('C', 5),  PIN('G', 11), PIN('G', 13)};
-  for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
-    hal_gpio_init(pins[i], HAL_GPIO_MODE_AF, HAL_GPIO_OTYPE_PUSH_PULL, HAL_GPIO_SPEED_INSANE,
-              HAL_GPIO_PULL_NONE, 11);  // 11 is the Ethernet function
-  }
-  NVIC_EnableIRQ(ETH_IRQn);                // Setup Ethernet IRQ handler
-  SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;  // Use RMII. Goes first!
-  RCC->AHB1ENR |=
-      RCC_AHB1ENR_ETHMACEN | RCC_AHB1ENR_ETHMACTXEN | RCC_AHB1ENR_ETHMACRXEN;
-}
+// // Hw pull-ups on PHY RXD0,1,DV to enable autonegotiation
+// static inline void hal_ethernet_init(void) {
+//   // Initialise Ethernet. Enable MAC GPIO pins, see
+//   // https://www.farnell.com/datasheets/2014265.pdf section 6.10
+//   uint16_t pins[] = {PIN('A', 1),  PIN('A', 2),  PIN('A', 7),
+//                      PIN('B', 13), PIN('C', 1),  PIN('C', 4),
+//                      PIN('C', 5),  PIN('G', 11), PIN('G', 13)};
+//   for (size_t i = 0; i < sizeof(pins) / sizeof(pins[0]); i++) {
+//     hal_gpio_init(pins[i], HAL_GPIO_MODE_AF, HAL_GPIO_OTYPE_PUSH_PULL, HAL_GPIO_SPEED_INSANE,
+//               HAL_GPIO_PULL_NONE, 11);  // 11 is the Ethernet function
+//   }
+//   NVIC_EnableIRQ(ETH_IRQn);                // Setup Ethernet IRQ handler
+//   SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;  // Use RMII. Goes first!
+//   RCC->AHB1ENR |=
+//       RCC_AHB1ENR_ETHMACEN | RCC_AHB1ENR_ETHMACTXEN | RCC_AHB1ENR_ETHMACRXEN;
+// }
 
 static inline void hal_clock_init(void) {
   FLASH->ACR |= FLASH_LATENCY | BIT(8) | BIT(9);    // Flash latency, prefetch

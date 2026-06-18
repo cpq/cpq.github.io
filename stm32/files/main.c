@@ -14,7 +14,7 @@ static void blink_task(void) {
   static uint64_t blink_timer = 0;
   if (hal_timer_expired(&blink_timer, 500, hal_get_tick())) {
     hal_gpio_toggle(LED1);
-    printf("Tick: %lu\r\n", (unsigned long) hal_get_tick());
+    // printf("Tick: %lu\r\n", (unsigned long) hal_get_tick());
   }
 }
 
@@ -23,7 +23,7 @@ int main(void) {
   hal_rng_init();
   hal_gpio_output(LED1);
   hal_uart_init(DEBUG_UART, 115200);
-  printf("Initialised. CPU clock: %lu\r\n", SystemCoreClock / 1000000);
+  // printf("Initialised. CPU clock: %lu\r\n", SystemCoreClock / 1000000);
 
   for (;;) {
     blink_task();

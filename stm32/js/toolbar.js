@@ -1,9 +1,33 @@
 import { h, html, render, useEffect, useRef, useSignal } from "./bundle.js";
 import { Select, Button, Input } from "./controls.js";
+import { mountCmsis } from "./cmsis.js";
+
+function appendLog(sigState, line) {
+  const logs = [...(sigState.value.logs ?? []), line].slice(-200);
+  sigState.value = { ...sigState.value, logs };
+}
+
+async function writeDirectoryFile(handle, name, text) {
+  const parts = name.split("/");
+  const file = parts.pop();
+  for (const part of parts) handle = await handle.getDirectoryHandle(part, { create: true });
+  const fileHandle = await handle.getFileHandle(file, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(text);
+  await writable.close();
+}
 
 export function Toolbar({ sigState }) {
   const onnew = () => {
-    sigState.value = { ...sigState.value, board: "", micro: "", file: "", files: {} };
+    sigState.value = {
+      ...sigState.value,
+      board: "",
+      micro: "",
+      file: "",
+      files: {},
+      logs: [],
+      cmsisMount: null,
+    };
   };
 
   const files = Object.keys(sigState.value.files || {});
@@ -14,19 +38,14 @@ export function Toolbar({ sigState }) {
         Promise.all(
           files.map((name) => {
             const text = sigState.value.files[name];
-            handle
-              .getFileHandle(name, { create: true })
-              .then((fileHandle) => fileHandle.createWritable())
-              .then((writable) =>
-                writable.write(text).then(() => writable.close()),
-              );
+            return writeDirectoryFile(handle, name, text);
           }),
         ),
       );
     } else {
       var zip = new JSZip();
       for (const name of files) {
-        zip.file(`stm32/${name.replace(/^.+\//g, "")}`, sigState.value.files[name]);
+        zip.file(`stm32/${name}`, sigState.value.files[name]);
       }
       Promise.resolve()
         .then(() => zip.generateAsync({ type: "uint8array" }))
@@ -39,10 +58,29 @@ export function Toolbar({ sigState }) {
     }
   };
 
+  const onbuild = () => {
+    const { micro, board } = sigState.value;
+    appendLog(sigState, `Preparing CMSIS for ${micro}`);
+    return mountCmsis(micro, board, {
+      log: (line) => appendLog(sigState, line),
+    }).then((files) => {
+      if (sigState.value.micro === micro && sigState.value.board === board) {
+        sigState.value = {
+          ...sigState.value,
+          cmsisMount: { micro, board },
+          files: { ...(sigState.value.files ?? {}), ...files },
+        };
+        appendLog(sigState, "CMSIS ready");
+      }
+    }).catch((err) => {
+      appendLog(sigState, `CMSIS error: ${err.message}`);
+    });
+  };
+
   return html` <div class="flex items-center px-4 py-2 border-b gap-4">
     <div class="flex items-center gap-2 flex-grow">
       <${Button} title="new" onclick=${onnew} />
-      <${Button} title="build" disabled="{!sigState.value.micro}" />
+      <${Button} title="build" disabled=${!sigState.value.micro} onclick=${onbuild} />
       <${Button} title="flash" disabled="{!sigState.value.micro}" />
       <${Button}
         title="save"
