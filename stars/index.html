@@ -1,72 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>GitHub Stars</title>
-
-  <!-- Jquery & plugins -->
-  <script src="jquery.min.js"></script>
-
-  <!-- Semantic UI -->
-  <script src="semantic/semantic.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
-
-  <!-- Charting library -->
-  <script src="jquery.flot.min.js"></script>
-  <script src="jquery.flot.time.js"></script>
-
-  <!-- Libs -->
-  <script src="moment.min.js"></script>
-  <script src="jquery.cookie.min.js"></script>
-
-  <!-- App specific -->
-  <script src="main.js"></script>
-  <link rel="stylesheet" type="text/css" href="main.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GitHub Stars</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="jquery.min.js"></script>
+<script src="jquery.flot.min.js"></script>
+<script src="jquery.flot.time.js"></script>
+<script src="moment.min.js"></script>
+<style>
+body { font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+#graph { height: calc(100vh - 80px); }
+#graph_tooltip {
+  position: absolute; display: none; border: 1px solid #cca;
+  padding: 0.4em; white-space: nowrap; background: #ffc; opacity: 0.85;
+  border-radius: 4px; font-size: 13px;
+}
+</style>
 </head>
-<body>
-  <div class="ui menu top attached stackable">
-    <div class="borderless item header">
-      View stars for Github projects:
-    </div>
-    <div class="ui input focus action" style="width: 35em;">
-      <input type="text" id="repos_input"
+<body class="m-0"></body>
+<script type="module">
+import {
+  html, useSignal, useEffect, useRef, render,
+} from "https://npm.reversehttp.com/@preact/signals-core,@preact/signals,htm/preact,preact/hooks,preact";
+
+const COLORS = ['#DB2828','#2185D0','#FBBD08','#21BA45','#69c','#fec','#e39','#9e2'];
+const DEFAULT_REPOS = 'cesanta/mjson,cesanta/elk,cpq/mdk,cpq/bare-metal-programming-guide';
+
+const TOKEN_KEY = 'cpq.stars.token';
+
+const Graph = ({ sigSeries }) => {
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    const data = sigSeries.value;
+    if (!data || !data.length) return;
+    $.plot($(divRef.current), data, {
+      lines: { fill: false, lineWidth: 2 },
+      grid: { borderWidth: 1, borderColor: '#ccc', hoverable: true },
+      xaxis: { mode: 'time', ticks: 5 },
+      legend: {
+        labelFormatter: (str) => `<a href="https://github.com/${str}">${str}</a>`,
+        labelBoxBorderColor: '#fff',
+        position: 'nw',
+      },
+      colors: COLORS,
+    });
+  }, [sigSeries.value]);
+
+  useEffect(() => {
+    const el = divRef.current;
+    $(el).bind('plothover', (ev, pos, item) => {
+      if (item) {
+        $('#graph_tooltip')
+          .html(item.datapoint[1] + '<br/>' + moment(+item.datapoint[0]).format('YYYY-MM-DD HH:mm'))
+          .css({ top: item.pageY + 5, left: item.pageX + 5 }).fadeIn(200);
+      } else {
+        $('#graph_tooltip').fadeOut(200);
+      }
+    });
+  }, []);
+
+  return html`<div ref=${divRef} id="graph"></div>`;
+};
+
+const fetchStars = (repo, authToken, sigToken, sigStatus) => {
+  return new Promise((resolve) => {
+    const perPage = 100;
+    const series = [];
+    const headers = { Accept: 'application/vnd.github.v3.star+json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+
+    const getPage = (page) => {
+      $.ajax({
+        url: `https://api.github.com/repos/${repo}/stargazers?per_page=${perPage}&page=${page}`,
+        headers,
+        error: (xhr) => {
+          if (xhr.status === 401) {
+            localStorage.removeItem(TOKEN_KEY);
+            sigToken.value = '';
+            sigStatus.value = 'Bad token — cleared. Generate a new one at github.com/settings/tokens';
+          }
+          resolve({ label: repo, data: series });
+        },
+        success: (obj) => {
+          obj.forEach((v) => series.push([new Date(v.starred_at).getTime(), series.length]));
+          if (obj.length < perPage) {
+            resolve({ label: repo, data: series });
+          } else {
+            getPage(page + 1);
+          }
+        },
+      });
+    };
+    getPage(1);
+  });
+};
+
+const App = () => {
+  const sigRepos = useSignal(DEFAULT_REPOS);
+  const sigToken = useSignal(localStorage.getItem(TOKEN_KEY) || '');
+  const sigSeries = useSignal([]);
+  const sigLoading = useSignal(false);
+  const sigStatus = useSignal('');
+
+  // Restore repos from hash
+  useEffect(() => {
+    const hash = location.hash.substring(1);
+    if (hash) sigRepos.value = hash;
+    $(window).on('hashchange', () => {
+      const h = location.hash.substring(1);
+      if (h) sigRepos.value = h;
+      doRefresh();
+    });
+    doRefresh();
+  }, []);
+
+  const doRefresh = () => {
+    const repos = sigRepos.value.split(/[,\s]+/).filter(Boolean);
+    if (!repos.length) return;
+    sigLoading.value = true;
+    sigStatus.value = 'Loading...';
+    const promises = repos.map((repo) => fetchStars(repo, sigToken.value, sigToken, sigStatus));
+    Promise.all(promises).then((results) => {
+      sigSeries.value = results;
+      sigLoading.value = false;
+      sigStatus.value = '';
+    });
+  };
+
+  const onTokenChange = (ev) => {
+    const v = ev.target.value;
+    sigToken.value = v;
+    if (v) localStorage.setItem(TOKEN_KEY, v);
+    else localStorage.removeItem(TOKEN_KEY);
+    doRefresh();
+  };
+
+  const onReposChange = (ev) => {
+    const v = ev.target.value;
+    sigRepos.value = v;
+    location.hash = v;
+    doRefresh();
+  };
+
+  return html`
+    <div class="flex items-center gap-2 border-b border-gray-200 px-3 py-2 text-sm">
+      <span class="font-semibold text-gray-700 whitespace-nowrap">GitHub Stars</span>
+      <input
+        class="flex-1 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500"
         placeholder="user1/repo1, user2/repo2"
-        value="cesanta/mjson,cesanta/elk,cpq/mdk,cpq/bare-metal-programming-guide"/>
-      <button id="refresh_button" class="ui teal icon button">
-        <i class="icon refresh"></i>
-      </button>
+        value=${sigRepos.value}
+        onchange=${onReposChange}
+      />
+      <input
+        class="w-36 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500"
+        placeholder="GitHub token"
+        value=${sigToken.value}
+        onchange=${onTokenChange}
+      />
+      <button
+        class="rounded bg-blue-600 px-3 py-1 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        disabled=${sigLoading.value}
+        onclick=${doRefresh}
+      >Refresh</button>
+      ${sigStatus.value ? html`<span class="text-gray-500 text-xs">${sigStatus.value}</span>` : null}
     </div>
-    <div class="ui borderless item" id="status"></div>
+    <${Graph} sigSeries=${sigSeries} />
+  `;
+};
 
-    <div class="ui right borderless fitted item"></div>
+// Tooltip div
+$("<div id='graph_tooltip'/>").appendTo('body');
 
-    <a class="ui item ui link item"
-      href="https://github.com/login/oauth/authorize?scope=user:email&client_id=1c154c37a261751d93ac"
-      id="auth_button">
-      <i class="icon github"></i>
-    </a>
-
-    <div class="ui borderless item fitted authonly">
-      <img class="ui avatar image" id="avatar">
-    </div>
-    <div class="ui borderless item fitted authonly" id="username"></div>
-    <div class="link item authonly" id="logout"><i class="icon sign out"></i></div>
-  </div>
-
-  <div id="graph"></div>
-
-<!--
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-72452915-1', 'auto');
-  ga('send', 'pageview');
-
+render(html`<${App} />`, document.body);
 </script>
--->
-
-</body>
 </html>
