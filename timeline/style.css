@@ -1,0 +1,126 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  color-scheme: light dark;
+  line-height: 1.5;
+  --background: #ffffff;
+  --subtle: #f6f8fa;
+  --foreground: #1f2328;
+  --muted: #59636e;
+  --border: #d1d9e0;
+  --grid: #eff2f5;
+  --accent: #0969da;
+  --bar: #1f883d;
+  --bar-hover: #1a7f37;
+  --danger: #d1242f;
+  --shadow: 0 8px 24px #1f232826;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d1117;
+    --subtle: #151b23;
+    --foreground: #f0f6fc;
+    --muted: #9198a1;
+    --border: #3d444d;
+    --grid: #212830;
+    --accent: #4493f8;
+    --bar: #238636;
+    --bar-hover: #29903b;
+    --danger: #f85149;
+    --shadow: 0 8px 24px #01040980;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+main { padding: 24px; }
+h1 { margin: 16px 0; font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+
+.status { margin: 0; padding: 24px 16px; color: var(--muted); }
+.error { color: var(--danger); }
+
+.timeline {
+  width: 100%;
+  overflow-x: auto;
+  padding: 16px 0;
+}
+
+.timeline > p { margin: 0; padding: 0 16px; color: var(--muted); }
+.timeline svg { display: block; width: 100%; min-width: 1000px; height: auto; }
+.axis { stroke: var(--border); }
+.grid { stroke: var(--grid); }
+.timeline text { fill: var(--muted); font-size: 10px; }
+
+.event-label {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.event-bar { fill: var(--bar); stroke: #1f232826; }
+g:hover > .event-bar, g:focus > .event-bar { fill: var(--bar-hover); }
+
+.event-tooltip {
+  position: fixed;
+  z-index: 10;
+  width: 260px;
+  max-width: calc(100vw - 16px);
+  border: 1px solid #25292e;
+  border-radius: 6px;
+  background: #25292e;
+  color: #ffffff;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.event-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 16px;
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  background: #25292e;
+  border-top: 1px solid #25292e;
+  border-left: 1px solid #25292e;
+}
+
+.tooltip-name { display: block; padding: 10px 12px; font-weight: 600; }
+.tooltip-dates {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 8px 12px;
+  border-top: 1px solid #ffffff26;
+}
+.tooltip-dates dt { color: #d1d9e0; }
+.tooltip-dates dd {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 11px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  main { padding: 20px 12px; }
+}
